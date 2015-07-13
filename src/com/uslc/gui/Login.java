@@ -55,6 +55,17 @@ public class Login {
 	}
 	
 	private void init(){
+		getLog().info( "" );
+		getLog().info( " ************************************************* " );
+		getLog().info( " *                                               * " );
+		getLog().info( " * USLC Packing System has been just initialized * " );
+		getLog().info( " *                                               * " );
+		getLog().info( " ************************************************* " );
+		getLog().info( "Operative System: " + System.getProperty("os.name") );
+		getLog().info( "Operative System Version: " + System.getProperty("os.version") );
+		getLog().info( "Arch Data Model: " + System.getProperty("sun.arch.data.model") );
+		getLog().info( "" );
+
 		getFormTitle();
 		getUserLabel();
 		getUserInput();
