@@ -295,7 +295,7 @@ public class Login {
 				}catch( Exception e ){
 					getLog().error( "error trying to create a log", e );
 				}
-				
+
 				SystemCommons gui = null;
 				if( user.getUserType()==UserType.ADMIN.getId() ){
 					gui = new Master(getShell(), getDisplay(), user);

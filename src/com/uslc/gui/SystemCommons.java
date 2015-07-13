@@ -1,5 +1,10 @@
 package com.uslc.gui;
 
+import java.awt.Font;
+import java.awt.FontFormatException;
+import java.awt.GraphicsEnvironment;
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
@@ -36,6 +41,9 @@ public abstract class SystemCommons extends Shell {
 	public SystemCommons( Shell shell, Display display, User user ) {
 		super( display, shell.getStyle() );
 		super.setSize( shell.getSize() );
+
+		loadReportFonts();
+
 		this.user = user;
 		for( Control kid : shell.getChildren() ) {
 			kid.dispose();
@@ -183,5 +191,37 @@ public abstract class SystemCommons extends Shell {
 			PropertyConfigurator.configure( "log4j.properties" );
 		}
 		return log;
+	}
+	private void loadReportFonts(){
+		GraphicsEnvironment g= null;
+		g=GraphicsEnvironment.getLocalGraphicsEnvironment();
+		String []fonts=g.getAvailableFontFamilyNames();
+		
+		boolean found = false;
+		for (int i = 0; i < fonts.length; i++) {
+			System.out.println(fonts[i]);
+			if(fonts[i].equals("Helvetica")){
+				found = true;
+				break;
+			}
+		}
+
+		if( !found ){
+			System.out.println("Helvetica font not found, proceeding to load it into the system");
+			File fontsFolder = new File( "fonts/helveticas" );
+			for( File fontFile : fontsFolder.listFiles() ){
+				if( fontFile.isFile() ){
+					System.out.println( "Trying to load the font: " + fontFile.getName() );
+					try {
+						g.registerFont(Font.createFont(Font.TRUETYPE_FONT, fontFile));
+					} catch (FontFormatException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+			}
+			loadReportFonts();
+		}
 	}
 }
