@@ -319,12 +319,16 @@ public class Login {
 					//getShell().dispose();
 				}
 			}
-		} catch (Exception e1) {
+		}catch(Exception e1){
 			getLog().error("error", e1);
+			String errorMessage = e1.getMessage();
+			if( e1.getClass().getName().equals("javax.persistence.PersistenceException") && e1.getMessage().contains("The driver has not received any packets from the server") ){
+				errorMessage = "ERROR:\nHubo un problema al conectarse al servidor de base de datos, compruebe que la estación del trabajo tiene conexión al servidor de bases de datos.";
+			}
 			
 			MessageBox msg = new MessageBox(getShell(), SWT.ICON_ERROR);
 			msg.setText( Constants.MESSAGE_BOX_DIAG_TITLE.toString() );
-			msg.setMessage( e1.getMessage() );
+			msg.setMessage( errorMessage );
 			msg.open();
 		}
 	}
