@@ -8,6 +8,13 @@
 			<fileset dir="${}">
 			</fileset>
 		</path>
+		
+		<touch>
+		  <fileset dir="${dest.dir}"/>
+		</touch>
+		<copy todir="${dest.dir}" overwrite="false">
+		  <fileset dir="${src.dir}"/>
+		</copy>
 	</project>
 
 <!--
