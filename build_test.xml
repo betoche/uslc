@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<project name="TestAnt" default="my_target">
+	<target name="init">
+		<echo>Running target init</echo>
+	</target>
+	<target name="my_target" depends="init">
+		<echo>Running target my_target</echo>
+	</target>
+</project>
