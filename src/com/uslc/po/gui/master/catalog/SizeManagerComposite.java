@@ -1,401 +1,395 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  com.uslc.po.jpa.entity.Size
+ *  com.uslc.po.jpa.logic.SizeRepo
+ *  com.uslc.po.jpa.util.Constants
+ *  com.uslc.po.jpa.util.UslcJpa
+ *  org.apache.log4j.Logger
+ *  org.apache.log4j.PropertyConfigurator
+ *  org.eclipse.swt.events.MouseAdapter
+ *  org.eclipse.swt.events.MouseEvent
+ *  org.eclipse.swt.events.MouseListener
+ *  org.eclipse.swt.events.SelectionAdapter
+ *  org.eclipse.swt.events.SelectionEvent
+ *  org.eclipse.swt.events.SelectionListener
+ *  org.eclipse.swt.layout.FormData
+ *  org.eclipse.swt.layout.GridData
+ *  org.eclipse.swt.layout.GridLayout
+ *  org.eclipse.swt.widgets.Button
+ *  org.eclipse.swt.widgets.Composite
+ *  org.eclipse.swt.widgets.Label
+ *  org.eclipse.swt.widgets.Layout
+ *  org.eclipse.swt.widgets.MessageBox
+ *  org.eclipse.swt.widgets.Shell
+ *  org.eclipse.swt.widgets.Table
+ *  org.eclipse.swt.widgets.TableColumn
+ *  org.eclipse.swt.widgets.TableItem
+ *  org.eclipse.swt.widgets.Text
+ */
 package com.uslc.po.gui.master.catalog;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-
 import com.uslc.po.gui.master.MasterCenterComposite;
-import com.uslc.po.gui.master.interfaces.LiveDataAccessLifeCicle;
-import com.uslc.po.gui.master.interfaces.MasterCompositeInterface;
+import com.uslc.po.gui.master.POMaster;
 import com.uslc.po.gui.util.MyGridData;
 import com.uslc.po.jpa.entity.Size;
 import com.uslc.po.jpa.logic.SizeRepo;
 import com.uslc.po.jpa.util.Constants;
 import com.uslc.po.jpa.util.UslcJpa;
+import java.util.List;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
-public class SizeManagerComposite extends FormCenterMaster implements MasterCompositeInterface {
-	private Label title = null;
-	private Table sizes = null;
-	private Label info = null;
-	private Label waistLabel = null;
-	private Text waistText = null;
-	private Label hipLabel = null;
-	private Text hipText = null;
-	private Label inseamLabel = null;
-	private Text inseamText = null;
-	private Button action = null;
-	private Button cancel = null;
-	private GridData labelGd = null;
-	private GridData textGd = null;
-	
-	private Logger log = null;
-	private LiveDataAccessLifeCicle ldalc = null;
+public class SizeManagerComposite
+extends Composite {
+    private MasterCenterComposite parent = null;
+    private Label title = null;
+    private Table sizes = null;
+    private Label info = null;
+    private Label waistLabel = null;
+    private Text waistText = null;
+    private Label hipLabel = null;
+    private Text hipText = null;
+    private Label inseamLabel = null;
+    private Text inseamText = null;
+    private Button action = null;
+    private Button cancel = null;
+    private GridData labelGd = null;
+    private GridData textGd = null;
+    private Logger log = null;
+    private Size selectedSize = null;
+    private boolean editing = false;
+    private final String infoAddText = "Info: Add a new Size";
 
-	private Size selectedSize = null;
-	private boolean editing = false;
-	private final String infoAddText = "Info: Add a new Size";
-	
-	public SizeManagerComposite( MasterCenterComposite composite ) {
-		super( composite, SWT.NONE );
-		initComposite();
-		getLiveDataAccessLifeCicle();
-	}
-	
-	private void initComposite(){
-		GridLayout layout = new GridLayout( 4, false );
-		setLayout(layout);
-		
-		/*GridData data = new GridData();
-		data.heightHint = 300;
-		data.widthHint = 400;*/
-		FormData data = new FormData( 400, 300 );
-		setLayoutData(data);
-		
-		getTitle();
-		getSizes();
-		getInfo();
-		getWaistLabel();
-		getWaistText();
-		getHipLabel();
-		getHipText();
-		getInseamLabel();
-		getInseamText();
-		getAction();
-		getCancel();
-	}
-	
-	public Label getTitle() {
-		if( title == null ){
-			title = new Label( this, SWT.NONE );
-			title.setText( "Sizes" );
-			title.setAlignment(SWT.LEFT);
-			
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data.horizontalSpan=4;
-			title.setLayoutData(data);
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			GridData data2 = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data2.horizontalSpan=4;
-			horizontalLine.setLayoutData(data2);
-		}
-		return title;
-	}
-	public Table getSizes() {
-		if( sizes == null ){
-			sizes = new Table( this, SWT.SINGLE );
-			Font f = sizes.getFont();
-			FontData[] fds = f.getFontData();
-			for (int i = 0; i < fds.length; i++) {
-				fds[i].setHeight(8);
-			}
-			sizes.setFont( new Font(getDisplay(), fds));
-			
-			TableColumn id = new TableColumn(sizes, SWT.NONE);
-			id.setText("id");
-			TableColumn size = new TableColumn(sizes, SWT.NONE);
-			size.setText( "size" );
-			
-			id.setWidth(30);
-			size.setWidth(70);
-			sizes.setHeaderVisible(true);
-			
-			GridData data = new GridData( GridData.FILL_VERTICAL );
-			data.verticalSpan=6;
-			sizes.setLayoutData(data);
-			
-			sizes.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent arg0) {
-					setEditMode();
-				}
-			});
-			
-			GridData data1 = new GridData(SWT.FILL, SWT.FILL, false, false);
-			data1.verticalSpan=6;
-			data1.widthHint=15;
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.VERTICAL );
-			horizontalLine.setLayoutData(data1);
-		}
-		return sizes;
-	}
-	private void setEditMode(){
-		editing = true;
-		TableItem[] selection = getSizes().getSelection();
-		Size size = null;
-		if( selection!=null ){
-			for( TableItem item : selection ){
-				size = (Size)item.getData();
-			}
-		}
-		if( size!=null ){
-			editing = true;
-			selectedSize = size;
-			getWaistText().setText( String.valueOf( size.getWaist() ) );
-			getHipText().setText( String.valueOf( size.getHip() ) );
-			getInseamText().setText( String.valueOf( size.getInseam() ) );
-			getInfo().setText( "Size["+size.getId()+"] - UPDATE" );
-			getInfo().setAlignment( SWT.RIGHT );
-			getAction().setText("update");
-			getAction().setAlignment(SWT.RIGHT);
-		}else{
-			editing = false;
-			selectedSize = null;
-		}
-	}
-	public Label getInfo() {
-		if( info == null ){
-			info = new Label(this, SWT.NONE);
-			info.setText(infoAddText);
-			info.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-		}
-		return info;
-	}
-	public Label getWaistLabel() {
-		if( waistLabel == null ){
-			waistLabel = new Label(this, SWT.NONE);
-			waistLabel.setText("waist:");
-			waistLabel.setAlignment( SWT.RIGHT );
-			waistLabel.setLayoutData(getLabelGd());
-		}
-		return waistLabel;
-	}
-	public Text getWaistText() {
-		if( waistText == null ){
-			waistText = new Text(this, SWT.BORDER);
-			waistText.setLayoutData(getTextGd());
-		}
-		return waistText;
-	}
-	public Label getHipLabel() {
-		if( hipLabel == null ){
-			hipLabel = new Label(this, SWT.NONE);
-			hipLabel.setText("hip:");
-			hipLabel.setAlignment( SWT.RIGHT );
-			hipLabel.setLayoutData(labelGd = new GridData( 100, 23 ));
-		}
-		return hipLabel;
-	}
-	public Text getHipText() {
-		if( hipText == null ){
-			hipText = new Text(this, SWT.BORDER);
-			hipText.setLayoutData(new GridData(100, 23));
-		}
-		return hipText;
-	}
-	public Label getInseamLabel() {
-		if( inseamLabel == null ){
-			inseamLabel = new Label(this, SWT.NONE);
-			inseamLabel.setText("inseam:");
-			inseamLabel.setAlignment( SWT.RIGHT );
-			inseamLabel.setLayoutData(labelGd = new GridData( 100, 23 ));
-		}
-		return inseamLabel;
-	}
-	public Text getInseamText() {
-		if( inseamText == null ){
-			inseamText = new Text(this, SWT.BORDER);
-			inseamText.setLayoutData(new GridData(100, 23));
-		}
-		return inseamText;
-	}
-	public Button getAction() {
-		if( action == null ){
-			action = new Button(this, SWT.PUSH);
-			action.setText( "add" );
-			GridData gd = new GridData();
-			gd.widthHint = 70;
-			gd.horizontalAlignment = SWT.RIGHT;
-			action.setLayoutData(gd);
-			action.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					try {
-						performAction();
-					} catch (Exception e1) {
-						getLog().error( "error", e1);
-					}
-				}
-			});
-		}
-		return action;
-	}
-	public Button getCancel() {
-		if( cancel == null ){
-			cancel = new Button(this, SWT.PUSH);
-			cancel.setText( "cancel" );
-			GridData gd = new GridData();
-			gd.horizontalAlignment = SWT.CENTER;
-			gd.widthHint = 70;
-			cancel.setLayoutData(gd);
-			cancel.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if( editing ){
-						getLiveDataAccessLifeCicle().clean();
-					}else{
-						hide();
-					}
-				}
-			});
-			
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data.horizontalSpan = 4;
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(data);
-		}
-		return cancel;
-	}
+    public SizeManagerComposite(MasterCenterComposite composite) {
+        super((Composite)composite.getMaster().getHiddenShell(), 0);
+        this.parent = composite;
+        this.initComposite();
+    }
 
-	private GridData getLabelGd(){
-		if( labelGd == null ){
-			labelGd = new GridData( 100, 23 );
-		}
-		return labelGd;
-	}
-	private GridData getTextGd(){
-		if( textGd == null ){
-			textGd = new GridData(100, 23);
-		}
-		return textGd;
-	}
-	
-	private void performAction() throws Exception{
-		Size size = null;
-		int waist = Integer.parseInt( getWaistText().getText() );
-		int hip = Integer.parseInt( getHipText().getText() );
-		int inseam = Integer.parseInt( getInseamText().getText() );
-		String successMsg = "";
-		String errorMsg = "";
-		
-		if( editing ) {
-			size = selectedSize;
-			successMsg = "Size updated correctly.";
-			errorMsg = "There was a problem while updating the size.";
-		} else {
-			size = new Size();
-			successMsg = "Size added correctly.";
-			errorMsg = "There was a problem adding the size.";
-		}
-		
-		size.setWaist(waist);
-		size.setHip(hip);
-		size.setInseam(inseam);
-		
-		UslcJpa jpa = new UslcJpa();
-		int style = SWT.ICON_INFORMATION;
-		MessageBox diag = new MessageBox(this.getShell(), style );
-		diag.setText( Constants.MESSAGE_BOX_DIAG_TITLE.toString() );
-		if( jpa.persist(size) ){
-			diag.setMessage(successMsg);
-			getLiveDataAccessLifeCicle().clean();
-			getLiveDataAccessLifeCicle().displayValues();
-		}else{
-			style = SWT.ICON_ERROR;
-			diag.setMessage(errorMsg);
-		}
-		diag.open();
-	}
+    private void initComposite() {
+        GridLayout layout = new GridLayout(4, false);
+        this.setLayout((Layout)layout);
+        FormData data = new FormData(400, 300);
+        this.setLayoutData((Object)data);
+        this.getTitle();
+        this.getSizes();
+        this.getInfo();
+        this.getWaistLabel();
+        this.getWaistText();
+        this.getHipLabel();
+        this.getHipText();
+        this.getInseamLabel();
+        this.getInseamText();
+        this.getAction();
+        this.getCancel();
+    }
 
-	public void hide(){
-		getLiveDataAccessLifeCicle().clean();
-		this.setParent( getParent().getMaster().getHiddenShell() );
-		this.setVisible(false);
-	}
-	
-	private Logger getLog(){
-		if( log == null ){
-			log = Logger.getLogger( SizeManagerComposite.class );
-			PropertyConfigurator.configure("log4j.properties");
-		}
-		return log;
-	}
-	
-	/**
-	 * Create the composite.
-	 * @param parent
-	 * @param style
-	 */
-	public SizeManagerComposite(MasterCenterComposite parent, int style) {
-		super(parent, style);
-		
-		initComposite();
-	}
-	@Override
-	protected void checkSubclass() {
-		// Disable the check that prevents subclassing of SWT components
-	}
-	@Override
-	public InfoForm getInfoForm() {
-		String title = "size catalog manager";
-		String desc = "size catalog manager allows you to add new sizes or modify existing sizes in the database for using together with upc codes and purchase orders";
-		String[] features = { "list the existing sizes in the db", "add a new size to the db", "modify an existing size in db" };
-		return new InfoForm(title, desc, features);
-	}
+    public MasterCenterComposite getParent() {
+        return this.parent;
+    }
 
-	public LiveDataAccessLifeCicle getLiveDataAccessLifeCicle() {
-		if( ldalc == null ) {
-			ldalc = new SizeManagerCompositeLogic();
-		}
-		return ldalc;
-	}
-	
-	public class SizeManagerCompositeLogic implements LiveDataAccessLifeCicle {
-		public SizeManagerCompositeLogic() {
-			displayValues();
-		}
+    public Label getTitle() {
+        if (this.title == null) {
+            this.title = new Label((Composite)this, 0);
+            this.title.setText("Sizes");
+            this.title.setAlignment(16384);
+            GridData data = new GridData(4, 4, true, false);
+            data.horizontalSpan = 4;
+            this.title.setLayoutData((Object)data);
+            Label horizontalLine = new Label((Composite)this, 258);
+            GridData data2 = new GridData(4, 4, true, false);
+            data2.horizontalSpan = 4;
+            horizontalLine.setLayoutData((Object)data2);
+        }
+        return this.title;
+    }
 
-		@Override
-		public void displayValues() {
-			List<Size> sizes = getUslcJpaManager().getSizes();
-			getSizes().removeAll();
-			for (Size size : sizes) {
-				TableItem item = new TableItem(getSizes(), SWT.NONE);
-				String[] texts = { String.valueOf( size.getId() ), size.getWaist() + " x " + size.getInseam() };
-				item.setData(size);
-				item.setText( texts );
-			}
-			getTitle().setText( "sizes ("+sizes.size()+")" );
-		}
+    public Table getSizes() {
+        if (this.sizes == null) {
+            this.sizes = new Table((Composite)this, 4);
+            TableColumn id = new TableColumn(this.sizes, 0);
+            id.setText("id");
+            TableColumn size = new TableColumn(this.sizes, 0);
+            size.setText("size");
+            id.setWidth(30);
+            size.setWidth(70);
+            this.sizes.setHeaderVisible(true);
+            GridData data = new GridData(1040);
+            data.verticalSpan = 6;
+            this.sizes.setLayoutData((Object)data);
+            this.sizes.addMouseListener((MouseListener)new MouseAdapter(){
 
-		@Override
-		public void clean() {
-			editing = false;
-			getInfo().setText(infoAddText);
-			getInfo().setAlignment( SWT.LEFT );
-			getWaistText().setText("");
-			getHipText().setText("");
-			getInseamText().setText("");
-			getAction().setText("add");
-		}
+                public void mouseDoubleClick(MouseEvent arg0) {
+                    SizeManagerComposite.this.setEditMode();
+                }
+            });
+            this.loadSizes();
+            GridData data1 = new GridData(4, 4, false, false);
+            data1.verticalSpan = 6;
+            data1.widthHint = 15;
+            Label horizontalLine = new Label((Composite)this, 514);
+            horizontalLine.setLayoutData((Object)data1);
+        }
+        return this.sizes;
+    }
 
-		@Override
-		public void refreshFormData() {
-			clean();
-			displayValues();
-			layout();
-		}
-		
-	}
+    private void setEditMode() {
+        this.editing = true;
+        TableItem[] selection = this.getSizes().getSelection();
+        Size size = null;
+        if (selection != null) {
+            TableItem[] arrtableItem = selection;
+            int n = arrtableItem.length;
+            int n2 = 0;
+            while (n2 < n) {
+                TableItem item = arrtableItem[n2];
+                size = (Size)item.getData();
+                ++n2;
+            }
+        }
+        if (size != null) {
+            this.editing = true;
+            this.selectedSize = size;
+            this.getWaistText().setText(String.valueOf(size.getWaist()));
+            this.getHipText().setText(String.valueOf(size.getHip()));
+            this.getInseamText().setText(String.valueOf(size.getInseam()));
+            this.getInfo().setText("Size[" + size.getId() + "] - UPDATE");
+            this.getInfo().setAlignment(131072);
+            this.getAction().setText("update");
+            this.getAction().setAlignment(131072);
+        } else {
+            this.editing = false;
+            this.selectedSize = null;
+        }
+    }
+
+    public Label getInfo() {
+        if (this.info == null) {
+            this.info = new Label((Composite)this, 0);
+            this.info.setText("Info: Add a new Size");
+            this.info.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+        }
+        return this.info;
+    }
+
+    public Label getWaistLabel() {
+        if (this.waistLabel == null) {
+            this.waistLabel = new Label((Composite)this, 0);
+            this.waistLabel.setText("waist:");
+            this.waistLabel.setAlignment(131072);
+            this.waistLabel.setLayoutData((Object)this.getLabelGd());
+        }
+        return this.waistLabel;
+    }
+
+    public Text getWaistText() {
+        if (this.waistText == null) {
+            this.waistText = new Text((Composite)this, 2048);
+            this.waistText.setLayoutData((Object)this.getTextGd());
+        }
+        return this.waistText;
+    }
+
+    public Label getHipLabel() {
+        if (this.hipLabel == null) {
+            this.hipLabel = new Label((Composite)this, 0);
+            this.hipLabel.setText("hip:");
+            this.hipLabel.setAlignment(131072);
+            this.labelGd = new GridData(100, 23);
+            this.hipLabel.setLayoutData((Object)this.labelGd);
+        }
+        return this.hipLabel;
+    }
+
+    public Text getHipText() {
+        if (this.hipText == null) {
+            this.hipText = new Text((Composite)this, 2048);
+            this.hipText.setLayoutData((Object)new GridData(100, 23));
+        }
+        return this.hipText;
+    }
+
+    public Label getInseamLabel() {
+        if (this.inseamLabel == null) {
+            this.inseamLabel = new Label((Composite)this, 0);
+            this.inseamLabel.setText("inseam:");
+            this.inseamLabel.setAlignment(131072);
+            this.labelGd = new GridData(100, 23);
+            this.inseamLabel.setLayoutData((Object)this.labelGd);
+        }
+        return this.inseamLabel;
+    }
+
+    public Text getInseamText() {
+        if (this.inseamText == null) {
+            this.inseamText = new Text((Composite)this, 2048);
+            this.inseamText.setLayoutData((Object)new GridData(100, 23));
+        }
+        return this.inseamText;
+    }
+
+    public Button getAction() {
+        if (this.action == null) {
+            this.action = new Button((Composite)this, 8);
+            this.action.setText("add");
+            GridData gd = new GridData();
+            gd.widthHint = 70;
+            gd.horizontalAlignment = 131072;
+            this.action.setLayoutData((Object)gd);
+            this.action.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    try {
+                        SizeManagerComposite.this.performAction();
+                    }
+                    catch (Exception e1) {
+                        SizeManagerComposite.this.getLog().error((Object)"error", (Throwable)e1);
+                    }
+                }
+            });
+        }
+        return this.action;
+    }
+
+    public Button getCancel() {
+        if (this.cancel == null) {
+            this.cancel = new Button((Composite)this, 8);
+            this.cancel.setText("cancel");
+            GridData gd = new GridData();
+            gd.horizontalAlignment = 16777216;
+            gd.widthHint = 70;
+            this.cancel.setLayoutData((Object)gd);
+            this.cancel.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    if (SizeManagerComposite.this.editing) {
+                        SizeManagerComposite.this.clean();
+                    } else {
+                        SizeManagerComposite.this.hide();
+                    }
+                }
+            });
+            GridData data = new GridData(4, 4, true, false);
+            data.horizontalSpan = 4;
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)data);
+        }
+        return this.cancel;
+    }
+
+    private void loadSizes() {
+        List sizes = SizeRepo.findAll();
+        this.getSizes().removeAll();
+        for (Size size : sizes) {
+            TableItem item = new TableItem(this.getSizes(), 0);
+            String[] texts = new String[]{String.valueOf(size.getId()), String.valueOf(size.getWaist()) + " x " + size.getInseam()};
+            item.setData((Object)size);
+            item.setText(texts);
+        }
+    }
+
+    private GridData getLabelGd() {
+        if (this.labelGd == null) {
+            this.labelGd = new GridData(100, 23);
+        }
+        return this.labelGd;
+    }
+
+    private GridData getTextGd() {
+        if (this.textGd == null) {
+            this.textGd = new GridData(100, 23);
+        }
+        return this.textGd;
+    }
+
+    private void performAction() throws Exception {
+        Size size = null;
+        int waist = Integer.parseInt(this.getWaistText().getText());
+        int hip = Integer.parseInt(this.getHipText().getText());
+        int inseam = Integer.parseInt(this.getInseamText().getText());
+        String successMsg = "";
+        String errorMsg = "";
+        if (this.editing) {
+            size = this.selectedSize;
+            successMsg = "Size updated correctly.";
+            errorMsg = "There was a problem while updating the size.";
+        } else {
+            size = new Size();
+            successMsg = "Size added correctly.";
+            errorMsg = "There was a problem adding the size.";
+        }
+        size.setWaist(waist);
+        size.setHip(hip);
+        size.setInseam(inseam);
+        UslcJpa jpa = new UslcJpa();
+        int style = 2;
+        MessageBox diag = new MessageBox(this.getShell(), style);
+        diag.setText(Constants.MESSAGE_BOX_DIAG_TITLE.toString());
+        if (jpa.persist((Object)size)) {
+            diag.setMessage(successMsg);
+            this.clean();
+            this.loadSizes();
+        } else {
+            style = 1;
+            diag.setMessage(errorMsg);
+        }
+        diag.open();
+    }
+
+    private void clean() {
+        this.editing = false;
+        this.getInfo().setText("Info: Add a new Size");
+        this.getInfo().setAlignment(16384);
+        this.getWaistText().setText("");
+        this.getHipText().setText("");
+        this.getInseamText().setText("");
+        this.getAction().setText("add");
+    }
+
+    public void hide() {
+        this.clean();
+        this.setParent((Composite)this.getParent().getMaster().getHiddenShell());
+        this.setVisible(false);
+    }
+
+    private Logger getLog() {
+        if (this.log == null) {
+            this.log = Logger.getLogger((Class)SizeManagerComposite.class);
+            PropertyConfigurator.configure((String)"log4j.properties");
+        }
+        return this.log;
+    }
+
+    public SizeManagerComposite(Composite parent, int style) {
+        super(parent, style);
+        this.initComposite();
+    }
+
+    protected void checkSubclass() {
+    }
+
 }
+

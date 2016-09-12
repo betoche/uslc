@@ -1,20 +1,20 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  org.eclipse.swt.widgets.Composite
+ */
 package com.uslc.po.gui.test;
 
 import org.eclipse.swt.widgets.Composite;
 
-public class TestComposite extends Composite {
+public class TestComposite
+extends Composite {
+    public TestComposite(Composite parent, int style) {
+        super(parent, style);
+    }
 
-	/**
-	 * Create the composite.
-	 * @param parent
-	 * @param style
-	 */
-	public TestComposite(Composite parent, int style) {
-		super(parent, style);
-
-	}
-
-	@Override
-	protected void checkSubclass() {
-	}
+    protected void checkSubclass() {
+    }
 }
+

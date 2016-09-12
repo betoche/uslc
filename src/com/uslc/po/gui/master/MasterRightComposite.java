@@ -1,191 +1,117 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  org.eclipse.swt.layout.GridData
+ *  org.eclipse.swt.layout.GridLayout
+ *  org.eclipse.swt.widgets.Composite
+ *  org.eclipse.swt.widgets.Control
+ *  org.eclipse.swt.widgets.Group
+ *  org.eclipse.swt.widgets.Label
+ *  org.eclipse.swt.widgets.Layout
+ *  org.eclipse.swt.widgets.Shell
+ */
 package com.uslc.po.gui.master;
 
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
+import com.uslc.po.gui.master.NewPurchaseOrderDetailComposite;
+import com.uslc.po.gui.master.POMaster;
+import com.uslc.po.gui.master.interfaces.MasterCompositeInterface;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Shell;
 
-import com.uslc.po.gui.master.catalog.FormCenterMaster.InfoForm;
-import com.uslc.po.gui.master.interfaces.LiveDataAccessLifeCicle;
+public class MasterRightComposite
+extends Composite
+implements MasterCompositeInterface {
+    private POMaster master = null;
+    private NewPurchaseOrderDetailComposite poDetail = null;
+    private Group infoComposite = null;
+    private Label infoText = null;
 
-public class MasterRightComposite extends MasterSections {
-	private NewPurchaseOrderDetailComposite poDetail = null;
-	private Group infoComposite = null;
-	private Label titleLbl = null;
-	private Label descLbl = null;
-	private Label featuresLbl = null;
-	private Logger log = null;
-	
-	private LiveDataAccessLifeCicle ldalc = null;
-	
-	public MasterRightComposite( Master master ){
-		super( master, SWT.BORDER );
-		initComposite();
-		getLog().info( MasterRightComposite.class + " constructor has been called!" );
-	}
-	
-	protected void initComposite(){
-		GridData data = new GridData(SWT.FILL, SWT.FILL, false, true );
-		data.widthHint = 200;
-		setLayoutData( data );
-		
-		GridLayout layout = new GridLayout();
-		layout.marginTop = 20;
-		setLayout(layout);
-		getInfoComposite();
-	}
+    public MasterRightComposite(POMaster master) {
+        super((Composite)master.getShell(), 2048);
+        this.master = master;
+        this.initComposite();
+    }
 
-	public NewPurchaseOrderDetailComposite getNewPurchaseOrderDetail() {
-		if( poDetail == null ){
-			poDetail = new NewPurchaseOrderDetailComposite(this);
-		}
-		return poDetail;
-	}
-	public Group getInfoComposite(){
-		if( infoComposite == null ){
-			infoComposite = new Group(this, SWT.NONE);
-			infoComposite.setText("info");
-			GridData gd = new GridData(GridData.FILL, GridData.FILL, true, true );
-			infoComposite.setLayoutData(gd);
-			GridLayout gl = new GridLayout();
-			gl.numColumns=1;
-			infoComposite.setLayout(gl);
-			
-			getTitleLbl();
-			getDescLbl();
-			getFeaturesLbl();
-		}
-		return infoComposite;
-	}
-	public void hideAllComposites(){
-		try{getNewPurchaseOrderDetail().hide();}catch(Exception e){e.printStackTrace();}
-	}
-	public void showComposite( Composite composite ){
-		hideAllComposites();
-		
-		composite.setParent( this );
-		composite.moveAbove(getInfoComposite());
-		getInfoComposite().moveBelow(composite);
-		composite.setVisible( true );
-		composite.layout();
-		this.layout();
-		getMaster().getShell().layout();
-	}
-	public Label getTitleLbl(){
-		if( titleLbl == null ){
-			titleLbl = new Label(getInfoComposite(), SWT.NONE );
-			titleLbl.setAlignment( SWT.CENTER );
-			Font f = null;
-			for(FontData fd : titleLbl.getFont().getFontData() ) {
-				f = new Font( getDisplay(), fd.getName(), fd.getHeight(), SWT.NORMAL );
-			}
-			titleLbl.setFont( f );
-			GridData gd = new GridData();
-			gd.horizontalAlignment = GridData.FILL;
-			gd.verticalAlignment = GridData.BEGINNING;
-			gd.grabExcessHorizontalSpace=true;
-			gd.grabExcessVerticalSpace=false;
-			titleLbl.setLayoutData(gd);
-		}
-		return titleLbl;
-	}
-	public Label getDescLbl(){
-		if( descLbl == null ){
-			descLbl = new Label( getInfoComposite(), SWT.WRAP );
-			Font f = null;
-			for( FontData fd : descLbl.getFont().getFontData() ) {
-				f = new Font(getDisplay(), fd.getName(), fd.getHeight()-2, fd.getStyle() );
-			}
-			descLbl.setFont(f);
-			GridData gd = new GridData();
-			gd.horizontalAlignment = GridData.FILL;
-			gd.verticalAlignment = GridData.BEGINNING;
-			gd.grabExcessHorizontalSpace=true;
-			gd.grabExcessVerticalSpace=false;
-			descLbl.setLayoutData(gd);
-		}
-		return descLbl;
-	}
-	public Label getFeaturesLbl(){
-		if( featuresLbl == null ){
-			featuresLbl = new Label( getInfoComposite(), SWT.WRAP );
-			Font f = null;
-			for( FontData fd : featuresLbl .getFont().getFontData() ) {
-				f = new Font(getDisplay(), fd.getName(), fd.getHeight()-2, fd.getStyle() );
-			}
-			featuresLbl .setFont(f);
-			GridData gd = new GridData();
-			gd.horizontalAlignment = GridData.FILL;
-			gd.verticalAlignment = GridData.BEGINNING;
-			gd.grabExcessHorizontalSpace=true;
-			gd.grabExcessVerticalSpace=false;
-			featuresLbl.setLayoutData(gd);
-		}
-		return featuresLbl;
-	}
-	public void setInfoText( InfoForm info ){
-		if( info == null ){
-			getTitleLbl().setText( "" );
-			getTitleLbl().getParent().layout();
-			getDescLbl().setText( "" );
-			getDescLbl().getParent().layout();
-			getFeaturesLbl().setText( "" );
-			getFeaturesLbl().getParent().layout();
-		}else{
-			getTitleLbl().setText( info.getTitle() );
-			getTitleLbl().getParent().layout();
-			getDescLbl().setText( info.getDesc() );
-			getDescLbl().getParent().layout();
-			String features = "";
-			if( info.getFeatures() !=null ){
-				for( String s : info.getFeatures() ){
-					features += "- " + s + "\n";
-				}
-			}
-			getFeaturesLbl().setText( features );
-			getFeaturesLbl().getParent().layout();
-		}
-	}
+    private void initComposite() {
+        GridData data = new GridData(4, 4, false, true);
+        data.widthHint = 200;
+        this.setLayoutData((Object)data);
+        GridLayout layout = new GridLayout();
+        layout.marginTop = 20;
+        this.setLayout((Layout)layout);
+        this.getInfoComposite();
+    }
 
-	private Logger getLog() {
-		if( log == null ) {
-			log = Logger.getLogger( MasterRightComposite.class );
-			PropertyConfigurator.configure( "log4j.properties" );
-		}
-		return log;
-	}
+    @Override
+    public POMaster getMaster() {
+        return this.master;
+    }
 
-	@Override
-	public LiveDataAccessLifeCicle getLiveDataAccessLifeCicle() {
-		if( ldalc == null ) {
-			ldalc = new MasterRightCompositeLogic();
-		}
-		return ldalc;
-	}
-	
-	public class MasterRightCompositeLogic implements LiveDataAccessLifeCicle {
+    public NewPurchaseOrderDetailComposite getNewPurchaseOrderDetail() {
+        if (this.poDetail == null) {
+            this.poDetail = new NewPurchaseOrderDetailComposite(this);
+        }
+        return this.poDetail;
+    }
 
-		@Override
-		public void displayValues() {
-			
-		}
+    public Group getInfoComposite() {
+        if (this.infoComposite == null) {
+            this.infoComposite = new Group((Composite)this, 0);
+            this.infoComposite.setText("info");
+            GridData gd = new GridData(4, 4, true, true);
+            this.infoComposite.setLayoutData((Object)gd);
+            GridLayout gl = new GridLayout();
+            gl.numColumns = 1;
+            this.infoComposite.setLayout((Layout)gl);
+            this.getInfoText();
+            this.getInfoText().setParent((Composite)this.infoComposite);
+        }
+        return this.infoComposite;
+    }
 
-		@Override
-		public void clean() {
-			
-		}
+    public void hideAllComposites() {
+        try {
+            this.getNewPurchaseOrderDetail().hide();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-		@Override
-		public void refreshFormData() {
-			getInfoComposite().layout();
-			layout();
-		}
-		
-	}
+    public void showComposite(Composite composite) {
+        this.hideAllComposites();
+        composite.setParent((Composite)this);
+        composite.moveAbove((Control)this.getInfoComposite());
+        this.getInfoComposite().moveBelow((Control)composite);
+        composite.setVisible(true);
+        composite.layout();
+        this.layout();
+        this.getMaster().getShell().layout();
+    }
+
+    public Label getInfoText() {
+        if (this.infoText == null) {
+            this.infoText = new Label((Composite)this.getInfoComposite(), 2048);
+            GridData gd = new GridData();
+            gd.horizontalAlignment = 768;
+            gd.verticalAlignment = 1040;
+            gd.grabExcessHorizontalSpace = true;
+            gd.grabExcessVerticalSpace = true;
+            this.infoText.setLayoutData((Object)gd);
+            this.infoText.setText("");
+        }
+        return this.infoText;
+    }
+
+    public void setInfoText(String infoText) {
+        this.getInfoText().setText(infoText);
+    }
 }
+

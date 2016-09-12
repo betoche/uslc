@@ -1,195 +1,187 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  org.eclipse.swt.layout.FormLayout
+ *  org.eclipse.swt.layout.GridData
+ *  org.eclipse.swt.layout.GridLayout
+ *  org.eclipse.swt.widgets.Button
+ *  org.eclipse.swt.widgets.Composite
+ *  org.eclipse.swt.widgets.Layout
+ *  org.eclipse.swt.widgets.Shell
+ */
 package com.uslc.po.gui.master;
 
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Composite;
+import com.uslc.po.gui.master.AboutComposite;
+import com.uslc.po.gui.master.MasterTopComposite;
+import com.uslc.po.gui.master.NewPurchaseOrderComposite;
+import com.uslc.po.gui.master.POMaster;
+import com.uslc.po.gui.master.PackingDetailComposite;
+import com.uslc.po.gui.master.PurchaseOrderDetailComposite;
+import com.uslc.po.gui.master.ReportsManagerComposite;
 import com.uslc.po.gui.master.catalog.ColorManagerComposite;
 import com.uslc.po.gui.master.catalog.ItemManagerComposite;
 import com.uslc.po.gui.master.catalog.PurchaseOrderByUserComposite;
 import com.uslc.po.gui.master.catalog.SizeManagerComposite;
 import com.uslc.po.gui.master.catalog.UpcManagerComposite;
 import com.uslc.po.gui.master.catalog.UserManagerComposite;
-import com.uslc.po.gui.master.interfaces.LiveDataAccessLifeCicle;
 import com.uslc.po.gui.master.interfaces.MasterCompositeInterface;
+import org.eclipse.swt.layout.FormLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.Shell;
 
-public class MasterCenterComposite extends MasterSections {
-	private ColorManagerComposite colorManager = null;
-	private SizeManagerComposite sizeManager = null;
-	private UpcManagerComposite upcManager = null;
-	private ItemManagerComposite itemManager = null;
-	private UserManagerComposite userManager = null;
-	private NewPurchaseOrderComposite newPoManager = null;
-	private PackingDetailComposite packingDetailViewer = null;
-	private PurchaseOrderDetailComposite purchaseDetailViewer = null;
-	private AboutComposite about = null;
-	private PurchaseOrderByUserComposite purchaseByUserManager = null;
-	private ReportsManagerComposite reportsCentre = null;
-	
-	private Composite left = null;
-	private Composite center = null;
-	private Composite right = null;
-	
-	private LiveDataAccessLifeCicle ldal = null;
-	
-	public MasterCenterComposite( Master master ){
-		super( master, SWT.BORDER );
-		
-		initComposite();
-	}
-	
-	protected void initComposite() {
-		GridData data = new GridData( GridData.FILL_BOTH );
-		//data.widthHint = 400;
-		setLayoutData( data );
-		
-		GridLayout layout = new GridLayout( 3, false );
-		//FormLayout layout = new FormLayout();
-		layout.marginBottom = 20;
-		layout.marginTop = 20;
-		layout.marginLeft = 20;
-		layout.marginRight = 20;
-		
-		setLayout(layout);
-	}
-	
-	public void showComposite( Composite composite ) {
-		getMaster().hideAllComposites();
-		composite.setParent( getCenterComposite() );
-		composite.setVisible(true);
-		composite.layout();
-		layout();
-		getMaster().getShell().layout();
-		if( composite instanceof NewPurchaseOrderComposite ){
-			getMaster().getMasterTop().getCancel().setEnabled(true);
-		}else{
-			getMaster().getMasterTop().getCancel().setEnabled(false);
-		}
-		
-		if( composite instanceof MasterCompositeInterface ) {
-			getMaster().setInfoText( ((MasterCompositeInterface)composite).getInfoForm() );
-		}
-	}
-	public SizeManagerComposite getSizeManager(){
-		if( sizeManager == null ){
-			sizeManager = new SizeManagerComposite( this );
-		}
-		return sizeManager;
-	}
-	public ColorManagerComposite getColorManager(){
-		if( colorManager == null ){
-			colorManager = new ColorManagerComposite( this );
-		}
-		return colorManager;
-	}
-	public UpcManagerComposite getUpcManager() {
-		if( upcManager == null ){
-			upcManager = new UpcManagerComposite(this);
-		}
-		return upcManager;
-	}
-	public Composite getCenterComposite(){
-		if( center == null ){
-			GridData data = new GridData( GridData.FILL_BOTH );
-			
-			left = new Composite(this, SWT.NONE);
-			center = new Composite(this,SWT.NONE);
-			right = new Composite(this, SWT.NONE);
-			
-			left.setLayoutData(data);
-			right.setLayoutData(data);
-			
-			//GridLayout layout = new GridLayout();
-			FormLayout layout = new FormLayout();
-			//layout.numColumns=1;
-			center.setLayout( layout );
-		}
-		return center;
-	}
-	public void setCenterComposite( Composite composite ){
-		center = composite;
-	}
-	public NewPurchaseOrderComposite getNewPurchaseOrder() {
-		if( newPoManager == null ){
-			newPoManager = new NewPurchaseOrderComposite(this);
-		}
-		return newPoManager;
-	}
-	public PackingDetailComposite getPackingDetailViewer( /*PurchaseOrder po*/ ){
-		if( packingDetailViewer == null ){
-			packingDetailViewer = new PackingDetailComposite(this);
-		}
-		//packingDetailViewer.setPurchaseOrder( po );
-		return packingDetailViewer;
-	}
-	public PurchaseOrderDetailComposite getPurchaseDetailViewer(){
-		if( purchaseDetailViewer == null ){
-			purchaseDetailViewer = new PurchaseOrderDetailComposite(this);
-		}
-		return purchaseDetailViewer;
-	}
-	
-	public ItemManagerComposite getItemManager() {
-		if( itemManager == null ){
-			itemManager = new ItemManagerComposite(this);
-		}
-		return itemManager;
-	}
+public class MasterCenterComposite
+extends Composite
+implements MasterCompositeInterface {
+    private POMaster master = null;
+    private ColorManagerComposite colorManager = null;
+    private SizeManagerComposite sizeManager = null;
+    private UpcManagerComposite upcManager = null;
+    private ItemManagerComposite itemManager = null;
+    private UserManagerComposite userManager = null;
+    private NewPurchaseOrderComposite newPoManager = null;
+    private PackingDetailComposite packingDetailViewer = null;
+    private PurchaseOrderDetailComposite purchaseDetailViewer = null;
+    private AboutComposite about = null;
+    private PurchaseOrderByUserComposite purchaseByUserManager = null;
+    private ReportsManagerComposite reportsCentre = null;
+    private Composite left = null;
+    private Composite center = null;
+    private Composite right = null;
 
-	public AboutComposite getAbout() {
-		if( about == null ){
-			about = new AboutComposite(this);
-		}
-		return about;
-	}
+    public MasterCenterComposite(POMaster master) {
+        super((Composite)master.getShell(), 2048);
+        this.master = master;
+        this.initComposite();
+    }
 
-	public UserManagerComposite getUserManager() {
-		if( userManager == null ){
-			userManager = new UserManagerComposite(this);
-		}
-		return userManager;
-	}
+    private void initComposite() {
+        GridData data = new GridData(1808);
+        this.setLayoutData((Object)data);
+        GridLayout layout = new GridLayout(3, false);
+        layout.marginBottom = 20;
+        layout.marginTop = 20;
+        layout.marginLeft = 20;
+        layout.marginRight = 20;
+        this.setLayout((Layout)layout);
+    }
 
-	public PurchaseOrderByUserComposite getPurchaseOrderByUserManager() {
-		if( purchaseByUserManager==null ){
-			purchaseByUserManager = new PurchaseOrderByUserComposite(this);
-		}
-		return purchaseByUserManager;
-	}
-	
-	public ReportsManagerComposite getReportsManagerCentre() {
-		if( reportsCentre == null ) {
-			reportsCentre = new ReportsManagerComposite(this);
-		}
-		return reportsCentre;
-	}
+    @Override
+    public POMaster getMaster() {
+        return this.master;
+    }
 
-	@Override
-	public LiveDataAccessLifeCicle getLiveDataAccessLifeCicle() {
-		if( ldal == null ) {
-			ldal = new MasterCenterCompositeLogic();
-		}
-		return ldal;
-	}
-	
-	public class MasterCenterCompositeLogic implements LiveDataAccessLifeCicle {
+    public void showComposite(Composite composite) {
+        this.getMaster().hideAllComposites();
+        composite.setParent(this.getCenterComposite());
+        composite.setVisible(true);
+        composite.layout();
+        this.layout();
+        this.getMaster().getShell().layout();
+        if (composite instanceof NewPurchaseOrderComposite) {
+            this.getMaster().getTopComposite().getCancel().setEnabled(true);
+        } else {
+            this.getMaster().getTopComposite().getCancel().setEnabled(false);
+        }
+    }
 
-		@Override
-		public void displayValues() {
-			
-		}
+    public SizeManagerComposite getSizeManager() {
+        if (this.sizeManager == null) {
+            this.sizeManager = new SizeManagerComposite(this);
+        }
+        return this.sizeManager;
+    }
 
-		@Override
-		public void clean() {
-			
-		}
+    public ColorManagerComposite getColorManager() {
+        if (this.colorManager == null) {
+            this.colorManager = new ColorManagerComposite(this);
+        }
+        return this.colorManager;
+    }
 
-		@Override
-		public void refreshFormData() {
-			getCenterComposite().layout();
-			layout();
-		}
-		
-	}
+    public UpcManagerComposite getUpcManager() {
+        if (this.upcManager == null) {
+            this.upcManager = new UpcManagerComposite(this);
+        }
+        return this.upcManager;
+    }
+
+    public Composite getCenterComposite() {
+        if (this.center == null) {
+            GridData data = new GridData(1808);
+            this.left = new Composite((Composite)this, 0);
+            this.center = new Composite((Composite)this, 0);
+            this.right = new Composite((Composite)this, 0);
+            this.left.setLayoutData((Object)data);
+            this.right.setLayoutData((Object)data);
+            FormLayout layout = new FormLayout();
+            this.center.setLayout((Layout)layout);
+        }
+        return this.center;
+    }
+
+    public void setCenterComposite(Composite composite) {
+        this.center = composite;
+    }
+
+    public NewPurchaseOrderComposite getNewPurchaseOrder() {
+        if (this.newPoManager == null) {
+            this.newPoManager = new NewPurchaseOrderComposite(this);
+        }
+        return this.newPoManager;
+    }
+
+    public PackingDetailComposite getPackingDetailViewer() {
+        if (this.packingDetailViewer == null) {
+            this.packingDetailViewer = new PackingDetailComposite(this);
+        }
+        return this.packingDetailViewer;
+    }
+
+    public PurchaseOrderDetailComposite getPurchaseDetailViewer() {
+        if (this.purchaseDetailViewer == null) {
+            this.purchaseDetailViewer = new PurchaseOrderDetailComposite(this);
+        }
+        return this.purchaseDetailViewer;
+    }
+
+    public ItemManagerComposite getItemManager() {
+        if (this.itemManager == null) {
+            this.itemManager = new ItemManagerComposite(this);
+        }
+        return this.itemManager;
+    }
+
+    public AboutComposite getAbout() {
+        if (this.about == null) {
+            this.about = new AboutComposite(this);
+        }
+        return this.about;
+    }
+
+    public UserManagerComposite getUserManager() {
+        if (this.userManager == null) {
+            this.userManager = new UserManagerComposite(this);
+        }
+        return this.userManager;
+    }
+
+    public PurchaseOrderByUserComposite getPurchaseOrderByUserManager() {
+        if (this.purchaseByUserManager == null) {
+            this.purchaseByUserManager = new PurchaseOrderByUserComposite(this);
+        }
+        return this.purchaseByUserManager;
+    }
+
+    public ReportsManagerComposite getReportsManagerCentre() {
+        if (this.reportsCentre == null) {
+            this.reportsCentre = new ReportsManagerComposite(this);
+        }
+        return this.reportsCentre;
+    }
 }
+

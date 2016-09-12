@@ -25,12 +25,12 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.Shell;
 
-public class AboutComposite
+public class POUploaderComposite
 extends Composite {
     private MasterCenterComposite parent = null;
     private Logger log = null;
 
-    public AboutComposite(MasterCenterComposite composite) {
+    public POUploaderComposite(MasterCenterComposite composite) {
         super((Composite)composite.getMaster().getHiddenShell(), 2048);
         this.parent = composite;
         this.initComposite();
@@ -58,7 +58,7 @@ extends Composite {
 
     private Logger getLog() {
         if (this.log == null) {
-            this.log = Logger.getLogger((Class)AboutComposite.class);
+            this.log = Logger.getLogger((Class)POUploaderComposite.class);
             PropertyConfigurator.configure((String)"log4j.properties");
         }
         return this.log;

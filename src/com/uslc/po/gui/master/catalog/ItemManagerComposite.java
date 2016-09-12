@@ -1,399 +1,318 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  com.uslc.po.jpa.entity.Item
+ *  com.uslc.po.jpa.logic.ItemRepo
+ *  com.uslc.po.jpa.util.Constants
+ *  com.uslc.po.jpa.util.UslcJpa
+ *  org.apache.log4j.Logger
+ *  org.apache.log4j.PropertyConfigurator
+ *  org.eclipse.swt.events.MouseAdapter
+ *  org.eclipse.swt.events.MouseEvent
+ *  org.eclipse.swt.events.MouseListener
+ *  org.eclipse.swt.events.SelectionAdapter
+ *  org.eclipse.swt.events.SelectionEvent
+ *  org.eclipse.swt.events.SelectionListener
+ *  org.eclipse.swt.layout.FormData
+ *  org.eclipse.swt.layout.GridData
+ *  org.eclipse.swt.layout.GridLayout
+ *  org.eclipse.swt.widgets.Button
+ *  org.eclipse.swt.widgets.Composite
+ *  org.eclipse.swt.widgets.Label
+ *  org.eclipse.swt.widgets.Layout
+ *  org.eclipse.swt.widgets.MessageBox
+ *  org.eclipse.swt.widgets.Shell
+ *  org.eclipse.swt.widgets.Table
+ *  org.eclipse.swt.widgets.TableColumn
+ *  org.eclipse.swt.widgets.TableItem
+ *  org.eclipse.swt.widgets.Text
+ */
 package com.uslc.po.gui.master.catalog;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
-
 import com.uslc.po.gui.master.MasterCenterComposite;
-import com.uslc.po.gui.master.interfaces.LiveDataAccessLifeCicle;
-import com.uslc.po.gui.master.interfaces.MasterCompositeInterface;
+import com.uslc.po.gui.master.POMaster;
 import com.uslc.po.gui.util.MyGridData;
 import com.uslc.po.jpa.entity.Item;
 import com.uslc.po.jpa.logic.ItemRepo;
 import com.uslc.po.jpa.util.Constants;
 import com.uslc.po.jpa.util.UslcJpa;
+import java.util.List;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
-public class ItemManagerComposite extends FormCenterMaster implements MasterCompositeInterface {
-	private Label titleLbl = null;
-	private Table itemsTbl = null;
-	private Label infoLbl = null;
-	private Label itemLbl = null;
-	private Text itemTxt = null;
-	private Button action = null;
-	private Button cancel = null;
-	
-	private Logger log = null;
-	private Item selectedItem = null;
-	private boolean editing = false;
-	private final String infoAddText = "Info: Add a new Item Number";
-	
-	private LiveDataAccessLifeCicle ldalc = null;
-	
-	public ItemManagerComposite( MasterCenterComposite composite ) {
-		super( composite, SWT.NONE );
-		getLog().info( ItemManagerComposite.class + " constructor has been called!" );
-		initComposite();
-	}
-	private void initComposite() {
-		GridLayout layout = new GridLayout( 4, false );
-		setLayout(layout);
-		
-		FormData data = new FormData( 400, 220 );
-		setLayoutData(data);
-		
-		getTitleLbl();
-		getItemsTbl();
-		getInfoLbl();
-		getItemLbl();
-		getItemTxt();
-		getAction();
-		getCancel();
-		
-		getLiveDataAccessLifeCicle();
-	}
+public class ItemManagerComposite
+extends Composite {
+    private MasterCenterComposite parent = null;
+    private Label titleLbl = null;
+    private Table itemsTbl = null;
+    private Label infoLbl = null;
+    private Label itemLbl = null;
+    private Text itemTxt = null;
+    private Button action = null;
+    private Button cancel = null;
+    private Logger log = null;
+    private Item selectedItem = null;
+    private boolean editing = false;
+    private final String infoAddText = "Info: Add a new Item Number";
 
-	
-	public Label getTitleLbl() {
-		if( titleLbl == null ) {
-			titleLbl = new Label( this, SWT.NONE );
-			titleLbl.setText( "Item Manager" );
-			titleLbl.setAlignment(SWT.LEFT);
-			
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data.horizontalSpan=4;
-			titleLbl.setLayoutData(data);
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(data);
-		}
-		return titleLbl;
-	}
-	public Table getItemsTbl() {
-		if( itemsTbl == null ){
-			itemsTbl = new Table( this, SWT.SINGLE );
-			Font f = itemsTbl.getFont();
-			FontData[] fds = f.getFontData();
-			for (int i = 0; i < fds.length; i++) {
-				fds[i].setHeight(8);
-			}
-			itemsTbl.setFont( new Font(getDisplay(), fds));
-			
-			TableColumn id = new TableColumn(itemsTbl, SWT.NONE);
-			id.setText("id");
-			TableColumn size = new TableColumn(itemsTbl, SWT.NONE);
-			size.setText( "number" );
-			
-			id.setWidth(30);
-			size.setWidth(70);
-			itemsTbl.setHeaderVisible(true);
-			
-			GridData data = new GridData( GridData.FILL_VERTICAL );
-			data.verticalSpan=5;
-			itemsTbl.setLayoutData(data);
-			
-			itemsTbl.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent arg0) {
-					setEditMode();
-				}
-			});
-			
-			GridData data1 = new GridData(SWT.FILL, SWT.FILL, false, false);
-			data1.verticalSpan=5;
-			data1.widthHint=15;
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.VERTICAL );
-			horizontalLine.setLayoutData(data1);
-			
-			itemsTbl.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "item ~> codes list", 
-							"list all existing item codes in the database", 
-							new String[]{ "double click for modifying the item" }) );
-				}
-			});
-			itemsTbl.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return itemsTbl;
-	}
-	public Label getInfoLbl() {
-		if( infoLbl == null ){
-			infoLbl = new Label(this, SWT.NONE);
-			infoLbl.setText(infoAddText);
-			infoLbl.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-		}
-		return infoLbl;
-	}
-	public Label getItemLbl() {
-		if( itemLbl == null ){
-			itemLbl = new Label(this, SWT.NONE);
-			itemLbl.setText("item:");
-			itemLbl.setAlignment( SWT.RIGHT );
-			
-			GridData labelGd = new GridData( 70, 23 );
-			itemLbl.setLayoutData(labelGd);
-		}
-		return itemLbl;
-	}
-	public Text getItemTxt() {
-		if( itemTxt == null ){
-			itemTxt = new Text(this, SWT.BORDER);
-			
-			GridData textGd = new GridData(100, 23);
-			itemTxt.setLayoutData(textGd);
-			
-			itemTxt.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "item ~> code input field", 
-							"input the code for updating a current item or adding a new item code", 
-							null ) );
-				}
-			});
-			itemTxt.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-		}
-		return itemTxt;
-	}
-	public Button getAction() {
-		if( action == null ){
-			action = new Button(this, SWT.PUSH);
-			action.setText( "add" );
-			GridData gd = new GridData();
-			gd.widthHint = 70;
-			gd.horizontalAlignment = SWT.RIGHT;
-			action.setLayoutData(gd);
-			action.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					try {
-						performAction();
-					} catch (Exception e1) {
-						getLog().error( "error", e1);
-					}
-				}
-			});
-		
-			action.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "item ~> add/update button", 
-							"hit to add or commit the currect change to the current selected item", 
-							null ) );
-				}
-			});
-			action.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return action;
-	}
-	public Button getCancel() {
-		if( cancel == null ){
-			cancel = new Button(this, SWT.PUSH);
-			cancel.setText( "cancel" );
-			GridData gd = new GridData();
-			gd.horizontalAlignment = SWT.CENTER;
-			gd.widthHint = 70;
-			cancel.setLayoutData(gd);
-			cancel.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if( editing ){
-						getLiveDataAccessLifeCicle().clean();
-					}else{
-						hide();
-					}
-				}
-			});
-			
-			cancel.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "item ~> cancel button", 
-							"hit for canceling the current action or hiding the item catalog form", 
-							null ) );
-				}
-			});
-			cancel.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data.horizontalSpan = 4;
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(data);
-		}
-		return cancel;
-	}
-	private Logger getLog() {
-		if( log == null ){
-			log = Logger.getLogger( ItemManagerComposite.class );
-			PropertyConfigurator.configure( "log4j.properties" );
-		}
-		return log;
-	}
+    public ItemManagerComposite(MasterCenterComposite composite) {
+        super((Composite)composite.getMaster().getHiddenShell(), 0);
+        this.parent = composite;
+        this.initComposite();
+    }
 
-	private void setEditMode(){
-		editing = true;
-		TableItem[] selection = getItemsTbl().getSelection();
-		Item item = null;
-		if( selection!=null ){
-			for( TableItem it : selection ){
-				item = (Item)it.getData();
-			}
-		}
-		if( item!=null ){
-			editing = true;
-			selectedItem = item;
-			getItemTxt().setText( String.valueOf( item.getCode() ) );
-			getInfoLbl().setText( "Item["+item.getId()+"] - UPDATE" );
-			getInfoLbl().setAlignment( SWT.RIGHT );
-			getAction().setText("update");
-		}else{
-			editing = false;
-			selectedItem = null;
-		}
-	}
-	private void performAction() throws Exception{
-		Item item = null;
-		String code = getItemTxt().getText().trim();
-		String successMsg = "";
-		String errorMsg = "";
-		
-		if( editing ){
-			item = selectedItem;
-			successMsg = "Item updated correctly.";
-			errorMsg = "There was a problem while updating the item.";
-		}else{
-			item = new Item();
-			successMsg = "Item added correctly.";
-			errorMsg = "There was a problem adding the item.";
-		}
-		
-		item.setCode( code );
-		
-		UslcJpa jpa = new UslcJpa();
-		int style = SWT.ICON_INFORMATION;
-		MessageBox diag = new MessageBox(this.getShell(), style );
-		diag.setText( Constants.MESSAGE_BOX_DIAG_TITLE.toString() );
-		if( jpa.persist(item) ){
-			diag.setMessage(successMsg);
-			getLiveDataAccessLifeCicle().clean();
-			getLiveDataAccessLifeCicle().displayValues();
-		}else{
-			style = SWT.ICON_ERROR;
-			diag.setMessage(errorMsg);
-		}
-		diag.open();
-	}
-	public void hide(){
-		getLiveDataAccessLifeCicle().clean();
-		this.setParent( getParent().getMaster().getHiddenShell() );
-		this.setVisible(false);
-	}
+    private void initComposite() {
+        GridLayout layout = new GridLayout(4, false);
+        this.setLayout((Layout)layout);
+        FormData data = new FormData(400, 220);
+        this.setLayoutData((Object)data);
+        this.getTitleLbl();
+        this.getItemsTbl();
+        this.getInfoLbl();
+        this.getItemLbl();
+        this.getItemTxt();
+        this.getAction();
+        this.getCancel();
+    }
 
-	@Override
-	public InfoForm getInfoForm() {
-		String title = "item catalog manager";
-		String desc = "in this form you can add or modify an item number, you CAN NOT delete an existing item";
-		String[] features = {"list existing items codes ordered", 
-				"add new item codes to the database",
-				"modify the item number for an existing item in the database" };
-		
-		return new InfoForm(title, desc, features);
-	}
-	
-	public LiveDataAccessLifeCicle getLiveDataAccessLifeCicle() {
-		if( ldalc == null ) {
-			ldalc = new ItemManagerCompositeLogic();
-		}
-		return ldalc;
-	}
+    public Label getTitleLbl() {
+        if (this.titleLbl == null) {
+            this.titleLbl = new Label((Composite)this, 0);
+            this.titleLbl.setText("Item Manager");
+            this.titleLbl.setAlignment(16384);
+            GridData data = new GridData(4, 4, true, false);
+            data.horizontalSpan = 4;
+            this.titleLbl.setLayoutData((Object)data);
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)data);
+        }
+        return this.titleLbl;
+    }
 
-	public class ItemManagerCompositeLogic implements LiveDataAccessLifeCicle {
+    public Table getItemsTbl() {
+        if (this.itemsTbl == null) {
+            this.itemsTbl = new Table((Composite)this, 4);
+            TableColumn id = new TableColumn(this.itemsTbl, 0);
+            id.setText("id");
+            TableColumn size = new TableColumn(this.itemsTbl, 0);
+            size.setText("number");
+            id.setWidth(30);
+            size.setWidth(70);
+            this.itemsTbl.setHeaderVisible(true);
+            GridData data = new GridData(1040);
+            data.verticalSpan = 5;
+            this.itemsTbl.setLayoutData((Object)data);
+            this.itemsTbl.addMouseListener((MouseListener)new MouseAdapter(){
 
-		public ItemManagerCompositeLogic() {
-			displayValues();
-		}
-		
-		@Override
-		public void displayValues() {
-			List<Item> items = getUslcJpaManager().getItems();
-			getItemsTbl().removeAll();
-			for (Item item : items) {
-				TableItem it = new TableItem(getItemsTbl(), SWT.NONE);
-				String[] texts = { String.valueOf( item.getId() ), String.valueOf( item.getCode() ) };
-				it.setData(item);
-				it.setText( texts );
-			}
-			getTitleLbl().setText( "items ("+items.size()+")" );
-		}
+                public void mouseDoubleClick(MouseEvent arg0) {
+                    ItemManagerComposite.this.setEditMode();
+                }
+            });
+            this.loadItems();
+            GridData data1 = new GridData(4, 4, false, false);
+            data1.verticalSpan = 5;
+            data1.widthHint = 15;
+            Label horizontalLine = new Label((Composite)this, 514);
+            horizontalLine.setLayoutData((Object)data1);
+        }
+        return this.itemsTbl;
+    }
 
-		@Override
-		public void clean() {
-			editing = false;
-			getItemTxt().setText("");
-			getAction().setText( "add" );
-			getInfoLbl().setText(infoAddText);
-			getInfoLbl().setAlignment( SWT.LEFT );
-		}
+    public Label getInfoLbl() {
+        if (this.infoLbl == null) {
+            this.infoLbl = new Label((Composite)this, 0);
+            this.infoLbl.setText("Info: Add a new Item Number");
+            this.infoLbl.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+        }
+        return this.infoLbl;
+    }
 
-		@Override
-		public void refreshFormData() {
-			clean();
-			displayValues();
-			layout();
-		}
-		
-	}
+    public Label getItemLbl() {
+        if (this.itemLbl == null) {
+            this.itemLbl = new Label((Composite)this, 0);
+            this.itemLbl.setText("item:");
+            this.itemLbl.setAlignment(131072);
+            GridData labelGd = new GridData(70, 23);
+            this.itemLbl.setLayoutData((Object)labelGd);
+        }
+        return this.itemLbl;
+    }
+
+    public Text getItemTxt() {
+        if (this.itemTxt == null) {
+            this.itemTxt = new Text((Composite)this, 2048);
+            GridData textGd = new GridData(100, 23);
+            this.itemTxt.setLayoutData((Object)textGd);
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+        }
+        return this.itemTxt;
+    }
+
+    public Button getAction() {
+        if (this.action == null) {
+            this.action = new Button((Composite)this, 8);
+            this.action.setText("add");
+            GridData gd = new GridData();
+            gd.widthHint = 70;
+            gd.horizontalAlignment = 131072;
+            this.action.setLayoutData((Object)gd);
+            this.action.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    try {
+                        ItemManagerComposite.this.performAction();
+                    }
+                    catch (Exception e1) {
+                        ItemManagerComposite.this.getLog().error((Object)"error", (Throwable)e1);
+                    }
+                }
+            });
+        }
+        return this.action;
+    }
+
+    public Button getCancel() {
+        if (this.cancel == null) {
+            this.cancel = new Button((Composite)this, 8);
+            this.cancel.setText("cancel");
+            GridData gd = new GridData();
+            gd.horizontalAlignment = 16777216;
+            gd.widthHint = 70;
+            this.cancel.setLayoutData((Object)gd);
+            this.cancel.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    if (ItemManagerComposite.this.editing) {
+                        ItemManagerComposite.this.clean();
+                    } else {
+                        ItemManagerComposite.this.hide();
+                    }
+                }
+            });
+            GridData data = new GridData(4, 4, true, false);
+            data.horizontalSpan = 4;
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)data);
+        }
+        return this.cancel;
+    }
+
+    public Logger getLog() {
+        if (this.log == null) {
+            this.log = Logger.getLogger((Class)ItemManagerComposite.class);
+            PropertyConfigurator.configure((String)"log4j.properties");
+        }
+        return this.log;
+    }
+
+    public MasterCenterComposite getParent() {
+        return this.parent;
+    }
+
+    private void setEditMode() {
+        this.editing = true;
+        TableItem[] selection = this.getItemsTbl().getSelection();
+        Item item = null;
+        if (selection != null) {
+            TableItem[] arrtableItem = selection;
+            int n = arrtableItem.length;
+            int n2 = 0;
+            while (n2 < n) {
+                TableItem it = arrtableItem[n2];
+                item = (Item)it.getData();
+                ++n2;
+            }
+        }
+        if (item != null) {
+            this.editing = true;
+            this.selectedItem = item;
+            this.getItemTxt().setText(String.valueOf(item.getCode()));
+            this.getInfoLbl().setText("Item[" + item.getId() + "] - UPDATE");
+            this.getInfoLbl().setAlignment(131072);
+            this.getAction().setText("update");
+        } else {
+            this.editing = false;
+            this.selectedItem = null;
+        }
+    }
+
+    private void performAction() throws Exception {
+        Item item = null;
+        String code = this.getItemTxt().getText().trim();
+        String successMsg = "";
+        String errorMsg = "";
+        if (this.editing) {
+            item = this.selectedItem;
+            successMsg = "Item updated correctly.";
+            errorMsg = "There was a problem while updating the item.";
+        } else {
+            item = new Item();
+            successMsg = "Item added correctly.";
+            errorMsg = "There was a problem adding the item.";
+        }
+        item.setCode(code);
+        UslcJpa jpa = new UslcJpa();
+        int style = 2;
+        MessageBox diag = new MessageBox(this.getShell(), style);
+        diag.setText(Constants.MESSAGE_BOX_DIAG_TITLE.toString());
+        if (jpa.persist((Object)item)) {
+            diag.setMessage(successMsg);
+            this.clean();
+            this.loadItems();
+        } else {
+            style = 1;
+            diag.setMessage(errorMsg);
+        }
+        diag.open();
+    }
+
+    private void clean() {
+        this.editing = false;
+        this.getItemTxt().setText("");
+        this.getAction().setText("add");
+        this.getInfoLbl().setText("Info: Add a new Item Number");
+        this.getInfoLbl().setAlignment(16384);
+    }
+
+    public void hide() {
+        this.clean();
+        this.setParent((Composite)this.getParent().getMaster().getHiddenShell());
+        this.setVisible(false);
+    }
+
+    private void loadItems() {
+        List items = ItemRepo.findAll();
+        this.getItemsTbl().removeAll();
+        for (Item item : items) {
+            TableItem it = new TableItem(this.getItemsTbl(), 0);
+            String[] texts = new String[]{String.valueOf(item.getId()), String.valueOf(item.getCode())};
+            it.setData((Object)item);
+            it.setText(texts);
+        }
+    }
+
 }
+

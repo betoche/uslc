@@ -1,36 +1,46 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  com.ibm.icu.util.Calendar
+ *  com.uslc.po.jpa.entity.User
+ *  com.uslc.po.jpa.logic.UserRepo
+ *  com.uslc.po.jpa.logic.UserType
+ *  com.uslc.po.jpa.util.Constants
+ *  com.uslc.po.jpa.util.Encryptor
+ *  com.uslc.po.jpa.util.UslcJpa
+ *  org.apache.log4j.Logger
+ *  org.apache.log4j.PropertyConfigurator
+ *  org.eclipse.swt.events.MouseAdapter
+ *  org.eclipse.swt.events.MouseEvent
+ *  org.eclipse.swt.events.MouseListener
+ *  org.eclipse.swt.events.SelectionAdapter
+ *  org.eclipse.swt.events.SelectionEvent
+ *  org.eclipse.swt.events.SelectionListener
+ *  org.eclipse.swt.graphics.Color
+ *  org.eclipse.swt.graphics.Device
+ *  org.eclipse.swt.layout.FormData
+ *  org.eclipse.swt.layout.GridData
+ *  org.eclipse.swt.layout.GridLayout
+ *  org.eclipse.swt.widgets.Button
+ *  org.eclipse.swt.widgets.Combo
+ *  org.eclipse.swt.widgets.Composite
+ *  org.eclipse.swt.widgets.Display
+ *  org.eclipse.swt.widgets.Label
+ *  org.eclipse.swt.widgets.Layout
+ *  org.eclipse.swt.widgets.MessageBox
+ *  org.eclipse.swt.widgets.Shell
+ *  org.eclipse.swt.widgets.Table
+ *  org.eclipse.swt.widgets.TableColumn
+ *  org.eclipse.swt.widgets.TableItem
+ *  org.eclipse.swt.widgets.Text
+ */
 package com.uslc.po.gui.master.catalog;
-
-import java.text.SimpleDateFormat;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.layout.FormData;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Combo;
-import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Table;
-import org.eclipse.swt.widgets.TableColumn;
-import org.eclipse.swt.widgets.TableItem;
-import org.eclipse.swt.widgets.Text;
 
 import com.ibm.icu.util.Calendar;
 import com.uslc.po.gui.master.MasterCenterComposite;
 import com.uslc.po.gui.master.NewPurchaseOrderComposite;
-import com.uslc.po.gui.master.interfaces.LiveDataAccessLifeCicle;
-import com.uslc.po.gui.master.interfaces.MasterCompositeInterface;
+import com.uslc.po.gui.master.POMaster;
 import com.uslc.po.gui.util.MyGridData;
 import com.uslc.po.jpa.entity.User;
 import com.uslc.po.jpa.logic.UserRepo;
@@ -38,631 +48,457 @@ import com.uslc.po.jpa.logic.UserType;
 import com.uslc.po.jpa.util.Constants;
 import com.uslc.po.jpa.util.Encryptor;
 import com.uslc.po.jpa.util.UslcJpa;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import org.apache.log4j.Logger;
+import org.apache.log4j.PropertyConfigurator;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Device;
+import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Combo;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Layout;
+import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Table;
+import org.eclipse.swt.widgets.TableColumn;
+import org.eclipse.swt.widgets.TableItem;
+import org.eclipse.swt.widgets.Text;
 
-public class UserManagerComposite extends FormCenterMaster implements MasterCompositeInterface {
-	private Logger log = null;
-	private final String infoAddText = "Info: Add a new user";
-	
-	private Label titleLbl = null;
-	private Table usersTbl = null;
-	private Label infoLbl = null;
-	private Label firstNameLbl = null;
-	private Text firstNameTxt = null;
-	private Label lastNameLbl = null;
-	private Text lastNameTxt = null;
-	private Label userNameLbl = null;
-	private Text userNameTxt = null;
-	private Label passwordLbl = null;
-	private Text passwordTxt = null;
-	private Label timestampLbl = null;
-	private Text timestampTxt = null;
-	private Label userTypeLbl = null;
-	private Combo userTypeCbx = null;
-	private Label enabledLbl = null;
-	private Button enabledBtn = null;
-	private Button actionBtn = null;
-	private Button cancelBtn = null;
-	
-	private GridData valuesGd = null;
-	private boolean editing = false;
-	private User selectedUser = null;
-	private SimpleDateFormat sdf = null;
-	
-	private LiveDataAccessLifeCicle ldalc = null;
-	
-	public UserManagerComposite( MasterCenterComposite composite ){
-		super( composite, SWT.NONE );
-		initComposite();
-	}
-	
-	private void initComposite(){
-		FormData data = new FormData( 470, 350);
-		setLayoutData(data);
-		
-		setLayout( new GridLayout( 4, false ) );
-		
-		getTitleLbl();
-		getUsersTbl();
-		getInfoLbl();
-		getFirstNameLbl();
-		getFirstNameTxt();
-		getLastNameLbl();
-		getLastNameTxt();
-		getUserNameLbl();
-		getUserNameTxt();
-		getPasswordLbl();
-		getPasswordTxt();
-		getTimestampLbl();
-		getTimestampTxt();
-		getUserTypeLbl();
-		getUserTypeCbx();
-		getEnabledLbl();
-		getEnabledBtn();
-		getActionBtn();
-		getCancelBtn();
-		
-		getLiveDataAccessLifeCicle();
-	}
-	
-	public Label getTitleLbl() {
-		if( titleLbl == null ){
-			titleLbl = new Label(this, SWT.NONE);
-			titleLbl.setText( "users" );
-			
-			GridData gd = new GridData( GridData.FILL_HORIZONTAL );
-			gd.horizontalSpan = 4;
-			
-			titleLbl.setLayoutData(gd);
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL);
-			horizontalLine.setLayoutData(gd);
-		}
-		return titleLbl;
-	}
-	public Table getUsersTbl() {
-		if( usersTbl == null ){
-			usersTbl = new Table(this, SWT.FULL_SELECTION | SWT.SINGLE);
-			
-			TableColumn id = new TableColumn(usersTbl, SWT.NONE);
-			TableColumn userName = new TableColumn(usersTbl, SWT.NONE);
-			
-			Font f = null;
-			FontData[] fds = usersTbl.getFont().getFontData();
-			
-			for( FontData fd : fds ) {
-				f = new Font( getDisplay(), fd.getName(), 8, fd.getStyle() );
-			}
-			
-			usersTbl.setFont( f );
-			
-			id.setText( "id" );
-			userName.setText( "name" );
-			
-			id.setWidth(30);
-			userName.setWidth(100);
-			
-			usersTbl.setHeaderVisible(true);
-			
-			GridData gd = new GridData( GridData.FILL_VERTICAL );
-			gd.grabExcessVerticalSpace = true;
-			gd.verticalSpan = 9;
-			usersTbl.setLayoutData( gd );
-			
-			usersTbl.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent arg0) {
-					setEditMode();
-				}
-			});
-			usersTbl.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> users table", 
-							"List the existing users in the system", 
-							new String[]{"double click for editing an existing user"}) );
-				}
-			});
-			usersTbl.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			Label verticalLine = new Label( this, SWT.SEPARATOR | SWT.VERTICAL );
-			GridData data1 = new GridData(GridData.FILL_VERTICAL);
-			data1.verticalSpan = 9;
-			data1.widthHint = 15;
-			verticalLine.setLayoutData(data1);
-		}
-		return usersTbl;
-	}
-	private void setEditMode(){
-		TableItem[] items = getUsersTbl().getSelection();
-		User user = null;
-		
-		for (TableItem tableItem : items) {
-			user = (User)tableItem.getData();
-		}
-		
-		if( user!=null ){
-			editing = true;
-			selectedUser = user;
-			getInfoLbl().setText("USER["+user.getUsername()+"] - UPDATE");
-			getInfoLbl().setAlignment( SWT.RIGHT );
-			getEnabledBtn().setSelection(user.isEnabled());
-			getFirstNameTxt().setText(user.getFirstName());
-			getLastNameTxt().setText(user.getLastName());
-			getPasswordTxt().setText(new Encryptor("").decrypt(user.getPassword()));
-			getTimestampTxt().setText(getMaster().getSimpleDateFormat().format( user.getTimestamp() ));
-			for( int i = 0 ; i < getUserTypeCbx().getItemCount() ; i++ ){
-				if( ((UserType)getUserTypeCbx().getData(getUserTypeCbx().getItem(i))).getId()==user.getUserType() ){
-					getUserTypeCbx().select(i);
-					break;
-				}
-			}
-			getUserNameTxt().setText(user.getUsername());
-			getActionBtn().setText("update");
-		}else{
-			editing = false;
-			getLiveDataAccessLifeCicle().clean();
-		}
-	}
-	public Label getInfoLbl() {
-		if( infoLbl == null ){
-			infoLbl = new Label(this, SWT.NONE);
-			infoLbl.setText( infoAddText );
-			infoLbl.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData( MyGridData.getDgHorizontalDoubleSpan() );
-		}
-		return infoLbl;
-	}
-	public Label getFirstNameLbl() {
-		if( firstNameLbl == null ){
-			firstNameLbl = new Label( this, SWT.NONE);
-			firstNameLbl.setText( "first name:" );
-		}
-		return firstNameLbl;
-	}
-	public Text getFirstNameTxt() {
-		if( firstNameTxt == null ){
-			firstNameTxt = new Text(this, SWT.NONE);
-			firstNameTxt.setLayoutData(getValuesGd());
-			
-			firstNameTxt.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> first name input", 
-							"type in the first name of the user either for adding a new user or modifying an existing user in the database", 
-							null) );
-				}
-			});
-			firstNameTxt.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return firstNameTxt;
-	}
-	public Label getLastNameLbl() {
-		if( lastNameLbl == null ){
-			lastNameLbl = new Label(this, SWT.NONE);
-			lastNameLbl.setText( "last name" );
-		}
-		return lastNameLbl;
-	}
-	public Text getLastNameTxt() {
-		if( lastNameTxt == null ){
-			lastNameTxt = new Text(this, SWT.NONE);
-			lastNameTxt.setLayoutData(getValuesGd());
-			
-			lastNameTxt.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> last name input", 
-							"type in the last name of the user either for adding a new user or modifying an existing user in the database", 
-							null) );
-				}
-			});
-			lastNameTxt.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return lastNameTxt;
-	}
-	public Label getUserNameLbl() {
-		if( userNameLbl == null ){
-			userNameLbl = new Label(this, SWT.NONE);
-			userNameLbl.setText("username:");
-		}
-		return userNameLbl;
-	}
-	public Text getUserNameTxt() {
-		if( userNameTxt == null ){
-			userNameTxt = new Text(this, SWT.NONE);
-			userNameTxt.setLayoutData(getValuesGd());
-			
-			userNameTxt.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> username input", 
-							"type in the username of the user used for loging to the system either for adding a new user or modifying an existing user in the database", 
-							null) );
-				}
-			});
-			userNameTxt.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return userNameTxt;
-	}
-	public Label getPasswordLbl() {
-		if( passwordLbl == null ){
-			passwordLbl = new Label(this, SWT.NONE);
-			passwordLbl.setText("password:");
-		}
-		return passwordLbl;
-	}
-	public Text getPasswordTxt() {
-		if( passwordTxt == null ){
-			passwordTxt = new Text(this, SWT.NONE | SWT.PASSWORD );
-			passwordTxt.setLayoutData(getValuesGd());
-			
-			passwordTxt.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> password input", 
-							"type in the password of the user used for loging to the system either for adding a new user or modifying an existing user in the database", 
-							null) );
-				}
-			});
-			passwordTxt.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return passwordTxt;
-	}
-	public Label getTimestampLbl() {
-		if( timestampLbl == null ){
-			timestampLbl = new Label(this, SWT.NONE);
-			timestampLbl.setText("timestamp:");
-		}
-		return timestampLbl;
-	}
-	public Text getTimestampTxt() {
-		if( timestampTxt == null ){
-			timestampTxt = new Text(this, SWT.READ_ONLY);
-			timestampTxt.setLayoutData(getValuesGd());
-			
-			timestampTxt.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> timestamp input", 
-							"this input display the creation timestamp of the current user", 
-							null) );
-				}
-			});
-			timestampTxt.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return timestampTxt;
-	}
-	public Label getUserTypeLbl() {
-		if( userTypeLbl == null ){
-			userTypeLbl = new Label(this, SWT.NONE);
-			userTypeLbl.setText( "type:" );
-		}
-		return userTypeLbl;
-	}
-	public Combo getUserTypeCbx() {
-		if( userTypeCbx == null ){
-			userTypeCbx = new Combo(this, SWT.DROP_DOWN | SWT.READ_ONLY );
-			userTypeCbx.setLayoutData(getValuesGd());
-			
-			userTypeCbx.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> user type list", 
-							"select the user type for the current user from the list", 
-							null) );
-				}
-			});
-			userTypeCbx.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			for( UserType ut : UserType.values() ){
-				userTypeCbx.add( ut.toString() );
-				userTypeCbx.setData( ut.toString(), ut );
-			}
-		}
-		return userTypeCbx;
-	}
-	public Label getEnabledLbl() {
-		if( enabledLbl == null ){
-			enabledLbl = new Label(this, SWT.NONE);
-			enabledLbl.setText( "enabled:" );
-		}
-		return enabledLbl;
-	}
-	public Button getEnabledBtn() {
-		if( enabledBtn == null ){
-			enabledBtn = new Button(this, SWT.CHECK);
-			
-			enabledBtn.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> user type list", 
-							"set the enabled or disabled state of the current user in the system", 
-							null) );
-				}
-			});
-			enabledBtn.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			GridData gd = new GridData( GridData.FILL_HORIZONTAL );
-			gd.horizontalSpan = 4;
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData( gd );
-		}
-		return enabledBtn;
-	}
-	public Button getActionBtn() {
-		if( actionBtn == null ){
-			actionBtn = new Button(this, SWT.PUSH);
-			actionBtn.setText("add");
-			actionBtn.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					try {
-						performAction();
-					} catch (Exception e1) {
-						getLog().error( "error", e1 );
-						getMaster().getErrorBox( e1.toString() );
-					}
-				}
-			});
-			
-			actionBtn.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> add/update btn", 
-							"hit this button either for adding or modifying a user in the database", 
-							null) );
-				}
-			});
-			actionBtn.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
-			gd.grabExcessHorizontalSpace=true;
-			gd.widthHint=70;
-			gd.horizontalSpan = 2;
-			
-			actionBtn.setLayoutData(gd);
-		}
-		return actionBtn;
-	}
-	private void performAction() throws Exception {
-		User user = null;
-		
-		String firstName = getFirstNameTxt().getText();
-		String lastName = getLastNameTxt().getText();
-		String username = getUserNameTxt().getText().trim();
-		String password = new Encryptor("").encrypt( getPasswordTxt().getText().trim() );
-		int ut = ((UserType)getUserTypeCbx().getData(getUserTypeCbx().getItem( getUserTypeCbx().getSelectionIndex() ))).getId();
-		boolean active = false;
-		boolean enabled = getEnabledBtn().getSelection();
-		
-		if( editing ){
-			user = selectedUser;
-		}else{
-			user = new User();
-			user.setActive(active);
-			user.setTimestamp(Calendar.getInstance().getTime());
-		}
-		user.setEnabled(enabled);
-		user.setFirstName(firstName);
-		user.setLastName(lastName);
-		user.setPassword(password);
-		user.setUserType(ut);
-		user.setUsername(username);
-		
-		int style = SWT.ICON_INFORMATION;
-		MessageBox diag = new MessageBox(this.getShell(), style );
-		diag.setText( Constants.MESSAGE_BOX_DIAG_TITLE.toString() );
-		String errorMsg = "there was a problem adding the user";
-		String successMsg = "user added/modified correctly.";
-		
-		UslcJpa jpa = new UslcJpa();
-		if( jpa.persist(user) ){
-			diag.setMessage(successMsg);
-			getLiveDataAccessLifeCicle().clean();
-			getLiveDataAccessLifeCicle().displayValues();
-		}else{
-			style = SWT.ICON_ERROR;
-			diag.setMessage(errorMsg);
-		}
-		
-		diag.open();
-	}
+public class UserManagerComposite
+extends Composite {
+    private MasterCenterComposite parent = null;
+    private Logger log = null;
+    private final String infoAddText = "Info: Add a new user";
+    private Label titleLbl = null;
+    private Table usersTbl = null;
+    private Label infoLbl = null;
+    private Label firstNameLbl = null;
+    private Text firstNameTxt = null;
+    private Label lastNameLbl = null;
+    private Text lastNameTxt = null;
+    private Label userNameLbl = null;
+    private Text userNameTxt = null;
+    private Label passwordLbl = null;
+    private Text passwordTxt = null;
+    private Label timestampLbl = null;
+    private Text timestampTxt = null;
+    private Label userTypeLbl = null;
+    private Combo userTypeCbx = null;
+    private Label enabledLbl = null;
+    private Button enabledBtn = null;
+    private Button actionBtn = null;
+    private Button cancelBtn = null;
+    private GridData valuesGd = null;
+    private boolean editing = false;
+    private User selectedUser = null;
+    private SimpleDateFormat sdf = null;
 
-	public Button getCancelBtn() {
-		if( cancelBtn == null ){
-			cancelBtn = new Button(this, SWT.PUSH);
-			cancelBtn.setText( "cancel" );
-			
-			cancelBtn.addSelectionListener(new SelectionAdapter() {
-				@Override
-				public void widgetSelected(SelectionEvent e) {
-					if( editing ){
-						getLiveDataAccessLifeCicle().clean();
-					}else{
-						hide();
-					}
-				}
-			});
-			
-			cancelBtn.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "user ~> cancel btn", 
-							"hit this button either for cancelling the current action (adding or modifying) in the interface", 
-							null) );
-				}
-			});
-			cancelBtn.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			GridData gd = new GridData(SWT.CENTER, SWT.CENTER, true, false);
-			gd.grabExcessHorizontalSpace=true;
-			gd.horizontalAlignment = GridData.HORIZONTAL_ALIGN_CENTER;
-			gd.widthHint=70;
-			gd.horizontalSpan = 2;
-			
-			cancelBtn.setLayoutData(gd);
-		}
-		return cancelBtn;
-	}
+    public UserManagerComposite(MasterCenterComposite composite) {
+        super((Composite)composite.getMaster().getHiddenShell(), 0);
+        this.parent = composite;
+        this.initComposite();
+    }
 
-	public void hide(){
-		getLiveDataAccessLifeCicle().clean();
-		this.setParent( getParent().getMaster().getHiddenShell() );
-		this.setVisible(false);
-	}
-	private Logger getLog(){
-		if( log == null ){
-			log = Logger.getLogger(NewPurchaseOrderComposite.class);
-			PropertyConfigurator.configure("log4j.properties");
-		}
-		return log;
-	}
+    private void initComposite() {
+        FormData data = new FormData(470, 350);
+        this.setLayoutData((Object)data);
+        this.setLayout((Layout)new GridLayout(4, false));
+        this.getTitleLbl();
+        this.getUsersTbl();
+        this.getInfoLbl();
+        this.getFirstNameLbl();
+        this.getFirstNameTxt();
+        this.getLastNameLbl();
+        this.getLastNameTxt();
+        this.getUserNameLbl();
+        this.getUserNameTxt();
+        this.getPasswordLbl();
+        this.getPasswordTxt();
+        this.getTimestampLbl();
+        this.getTimestampTxt();
+        this.getUserTypeLbl();
+        this.getUserTypeCbx();
+        this.getEnabledLbl();
+        this.getEnabledBtn();
+        this.getActionBtn();
+        this.getCancelBtn();
+        this.loadValues();
+    }
 
-	public GridData getValuesGd(){
-		if( valuesGd == null ){
-			valuesGd = new GridData( GridData.FILL_HORIZONTAL );
-			valuesGd.grabExcessHorizontalSpace = true;
-		}
-		return valuesGd;
-	}
+    public Label getTitleLbl() {
+        if (this.titleLbl == null) {
+            this.titleLbl = new Label((Composite)this, 0);
+            this.titleLbl.setText("users");
+            GridData gd = new GridData(768);
+            gd.horizontalSpan = 4;
+            this.titleLbl.setLayoutData((Object)gd);
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)gd);
+        }
+        return this.titleLbl;
+    }
 
-	@Override
-	public InfoForm getInfoForm() {
-		String title = "user catalog manager";
-		String desc = "this interface is used for managing the users in the system, with double click you set the interface for mupdating the user's information";
-		String[] features = { 
-				"list existing users in the system",
-				"add new users to the system",
-				"modify users information for existing users",
-				"enable or disable users in the system"
-		};
-		return new InfoForm(title, desc, features);
-	}
+    public Table getUsersTbl() {
+        if (this.usersTbl == null) {
+            this.usersTbl = new Table((Composite)this, 4);
+            TableColumn id = new TableColumn(this.usersTbl, 0);
+            TableColumn userName = new TableColumn(this.usersTbl, 0);
+            id.setText("id");
+            userName.setText("name");
+            id.setWidth(30);
+            userName.setWidth(100);
+            this.usersTbl.setHeaderVisible(true);
+            GridData gd = new GridData(1040);
+            gd.grabExcessVerticalSpace = true;
+            gd.verticalSpan = 9;
+            this.usersTbl.setLayoutData((Object)gd);
+            this.usersTbl.addMouseListener((MouseListener)new MouseAdapter(){
 
-	public LiveDataAccessLifeCicle getLiveDataAccessLifeCicle() {
-		if( ldalc == null ) {
-			ldalc = new UserManagerCompositeLogic();
-		}
-		return ldalc;
-	}
-	
-	public class UserManagerCompositeLogic implements LiveDataAccessLifeCicle {
-		public UserManagerCompositeLogic() {
-			displayValues();
-		}
+                public void mouseDoubleClick(MouseEvent arg0) {
+                    UserManagerComposite.this.setEditMode();
+                }
+            });
+            Label verticalLine = new Label((Composite)this, 514);
+            GridData data1 = new GridData(1040);
+            data1.verticalSpan = 9;
+            data1.widthHint = 15;
+            verticalLine.setLayoutData((Object)data1);
+        }
+        return this.usersTbl;
+    }
 
-		@Override
-		public void displayValues() {
-			getUsersTbl().removeAll();
-			List<User> users = getUslcJpaManager().getUsers();
-			
-			for (User user : users ) {
-				TableItem item = new TableItem(getUsersTbl(), SWT.NONE);
-				if( !user.isEnabled() ){
-					item.setBackground(new org.eclipse.swt.graphics.Color(getDisplay(), 255, 224, 237 ));
-				}
-				String texts[] = { String.valueOf( user.getId() ), (user.getFirstName() + " " + user.getLastName() ) };
-				item.setData(user);
-				item.setText( texts );
-			}
-			getTitleLbl().setText( "users ("+users.size()+")" );
-			
-			getTimestampTxt().setText( getMaster().getSimpleDateFormat().format( Calendar.getInstance().getTime() ) );
-		}
+    private void setEditMode() {
+        TableItem[] items = this.getUsersTbl().getSelection();
+        User user = null;
+        TableItem[] arrtableItem = items;
+        int n = arrtableItem.length;
+        int n2 = 0;
+        while (n2 < n) {
+            TableItem tableItem = arrtableItem[n2];
+            user = (User)tableItem.getData();
+            ++n2;
+        }
+        if (user != null) {
+            this.editing = true;
+            this.selectedUser = user;
+            this.getInfoLbl().setText("USER[" + user.getUsername() + "] - UPDATE");
+            this.getInfoLbl().setAlignment(131072);
+            this.getEnabledBtn().setSelection(user.isEnabled());
+            this.getFirstNameTxt().setText(user.getFirstName());
+            this.getLastNameTxt().setText(user.getLastName());
+            this.getPasswordTxt().setText(new Encryptor("").decrypt(user.getPassword()));
+            this.getTimestampTxt().setText(this.getSdf().format(user.getTimestamp()));
+            int i = 0;
+            while (i < this.getUserTypeCbx().getItemCount()) {
+                if (((UserType)this.getUserTypeCbx().getData(this.getUserTypeCbx().getItem(i))).getId() == user.getUserType()) {
+                    this.getUserTypeCbx().select(i);
+                    break;
+                }
+                ++i;
+            }
+            this.getUserNameTxt().setText(user.getUsername());
+            this.getActionBtn().setText("update");
+        } else {
+            this.editing = false;
+            this.clean();
+        }
+    }
 
-		@Override
-		public void clean() {
-			editing = false;
-			selectedUser = null;
-			getInfoLbl().setText(infoAddText);
-			getInfoLbl().setAlignment( SWT.LEFT );
-			getEnabledBtn().setSelection(false);
-			getFirstNameTxt().setText("");
-			getLastNameTxt().setText("");
-			getPasswordTxt().setText("");
-			getTimestampTxt().setText( getMaster().getSimpleDateFormat().format(Calendar.getInstance().getTime()) );
-			getUserTypeCbx().select(-1);
-			getUserNameTxt().setText("");
-			getActionBtn().setText("add");
-		}
+    public Label getInfoLbl() {
+        if (this.infoLbl == null) {
+            this.infoLbl = new Label((Composite)this, 0);
+            this.infoLbl.setText("Info: Add a new user");
+            this.infoLbl.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+        }
+        return this.infoLbl;
+    }
 
-		@Override
-		public void refreshFormData() {
-			clean();
-			displayValues();
-			layout();
-		}
-		
-	}
+    public Label getFirstNameLbl() {
+        if (this.firstNameLbl == null) {
+            this.firstNameLbl = new Label((Composite)this, 0);
+            this.firstNameLbl.setText("first name:");
+        }
+        return this.firstNameLbl;
+    }
+
+    public Text getFirstNameTxt() {
+        if (this.firstNameTxt == null) {
+            this.firstNameTxt = new Text((Composite)this, 0);
+            this.firstNameTxt.setLayoutData((Object)this.getValuesGd());
+        }
+        return this.firstNameTxt;
+    }
+
+    public Label getLastNameLbl() {
+        if (this.lastNameLbl == null) {
+            this.lastNameLbl = new Label((Composite)this, 0);
+            this.lastNameLbl.setText("last name");
+        }
+        return this.lastNameLbl;
+    }
+
+    public Text getLastNameTxt() {
+        if (this.lastNameTxt == null) {
+            this.lastNameTxt = new Text((Composite)this, 0);
+            this.lastNameTxt.setLayoutData((Object)this.getValuesGd());
+        }
+        return this.lastNameTxt;
+    }
+
+    public Label getUserNameLbl() {
+        if (this.userNameLbl == null) {
+            this.userNameLbl = new Label((Composite)this, 0);
+            this.userNameLbl.setText("username:");
+        }
+        return this.userNameLbl;
+    }
+
+    public Text getUserNameTxt() {
+        if (this.userNameTxt == null) {
+            this.userNameTxt = new Text((Composite)this, 0);
+            this.userNameTxt.setLayoutData((Object)this.getValuesGd());
+        }
+        return this.userNameTxt;
+    }
+
+    public Label getPasswordLbl() {
+        if (this.passwordLbl == null) {
+            this.passwordLbl = new Label((Composite)this, 0);
+            this.passwordLbl.setText("password:");
+        }
+        return this.passwordLbl;
+    }
+
+    public Text getPasswordTxt() {
+        if (this.passwordTxt == null) {
+            this.passwordTxt = new Text((Composite)this, 4194304);
+            this.passwordTxt.setLayoutData((Object)this.getValuesGd());
+        }
+        return this.passwordTxt;
+    }
+
+    public Label getTimestampLbl() {
+        if (this.timestampLbl == null) {
+            this.timestampLbl = new Label((Composite)this, 0);
+            this.timestampLbl.setText("timestamp:");
+        }
+        return this.timestampLbl;
+    }
+
+    public Text getTimestampTxt() {
+        if (this.timestampTxt == null) {
+            this.timestampTxt = new Text((Composite)this, 8);
+            this.timestampTxt.setLayoutData((Object)this.getValuesGd());
+        }
+        return this.timestampTxt;
+    }
+
+    public Label getUserTypeLbl() {
+        if (this.userTypeLbl == null) {
+            this.userTypeLbl = new Label((Composite)this, 0);
+            this.userTypeLbl.setText("type:");
+        }
+        return this.userTypeLbl;
+    }
+
+    public Combo getUserTypeCbx() {
+        if (this.userTypeCbx == null) {
+            this.userTypeCbx = new Combo((Composite)this, 12);
+            this.userTypeCbx.setLayoutData((Object)this.getValuesGd());
+            UserType[] arruserType = UserType.values();
+            int n = arruserType.length;
+            int n2 = 0;
+            while (n2 < n) {
+                UserType ut = arruserType[n2];
+                this.userTypeCbx.add(ut.toString());
+                this.userTypeCbx.setData(ut.toString(), (Object)ut);
+                ++n2;
+            }
+        }
+        return this.userTypeCbx;
+    }
+
+    public Label getEnabledLbl() {
+        if (this.enabledLbl == null) {
+            this.enabledLbl = new Label((Composite)this, 0);
+            this.enabledLbl.setText("enabled:");
+        }
+        return this.enabledLbl;
+    }
+
+    public Button getEnabledBtn() {
+        if (this.enabledBtn == null) {
+            this.enabledBtn = new Button((Composite)this, 32);
+            GridData gd = new GridData(768);
+            gd.horizontalSpan = 4;
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)gd);
+        }
+        return this.enabledBtn;
+    }
+
+    public Button getActionBtn() {
+        if (this.actionBtn == null) {
+            this.actionBtn = new Button((Composite)this, 8);
+            this.actionBtn.setText("add");
+            this.actionBtn.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    try {
+                        UserManagerComposite.this.performAction();
+                    }
+                    catch (Exception e1) {
+                        UserManagerComposite.this.getLog().error((Object)"error", (Throwable)e1);
+                    }
+                }
+            });
+            GridData gd = new GridData(16777216, 16777216, true, false);
+            gd.grabExcessHorizontalSpace = true;
+            gd.widthHint = 70;
+            gd.horizontalSpan = 2;
+            this.actionBtn.setLayoutData((Object)gd);
+        }
+        return this.actionBtn;
+    }
+
+    private void performAction() throws Exception {
+        User user = null;
+        String firstName = this.getFirstNameTxt().getText();
+        String lastName = this.getLastNameTxt().getText();
+        String username = this.getUserNameTxt().getText().trim();
+        String password = new Encryptor("").encrypt(this.getPasswordTxt().getText().trim());
+        int ut = ((UserType)this.getUserTypeCbx().getData(this.getUserTypeCbx().getItem(this.getUserTypeCbx().getSelectionIndex()))).getId();
+        boolean active = false;
+        boolean enabled = this.getEnabledBtn().getSelection();
+        if (this.editing) {
+            user = this.selectedUser;
+        } else {
+            user = new User();
+            user.setActive(active);
+            user.setTimestamp(Calendar.getInstance().getTime());
+        }
+        user.setEnabled(enabled);
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setPassword(password);
+        user.setUserType(ut);
+        user.setUsername(username);
+        int style = 2;
+        MessageBox diag = new MessageBox(this.getShell(), style);
+        diag.setText(Constants.MESSAGE_BOX_DIAG_TITLE.toString());
+        String errorMsg = "there was a problem adding the user";
+        String successMsg = "user added/modified correctly.";
+        UslcJpa jpa = new UslcJpa();
+        if (jpa.persist((Object)user)) {
+            diag.setMessage(successMsg);
+            this.clean();
+            this.loadValues();
+        } else {
+            style = 1;
+            diag.setMessage(errorMsg);
+        }
+        diag.open();
+    }
+
+    public Button getCancelBtn() {
+        if (this.cancelBtn == null) {
+            this.cancelBtn = new Button((Composite)this, 8);
+            this.cancelBtn.setText("cancel");
+            this.cancelBtn.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    if (UserManagerComposite.this.editing) {
+                        UserManagerComposite.this.clean();
+                    } else {
+                        UserManagerComposite.this.hide();
+                    }
+                }
+            });
+            GridData gd = new GridData(16777216, 16777216, true, false);
+            gd.grabExcessHorizontalSpace = true;
+            gd.horizontalAlignment = 64;
+            gd.widthHint = 70;
+            gd.horizontalSpan = 2;
+            this.cancelBtn.setLayoutData((Object)gd);
+        }
+        return this.cancelBtn;
+    }
+
+    public void hide() {
+        this.clean();
+        this.setParent((Composite)this.getParent().getMaster().getHiddenShell());
+        this.setVisible(false);
+    }
+
+    private void clean() {
+        this.editing = false;
+        this.selectedUser = null;
+        this.getInfoLbl().setText("Info: Add a new user");
+        this.getInfoLbl().setAlignment(16384);
+        this.getEnabledBtn().setSelection(false);
+        this.getFirstNameTxt().setText("");
+        this.getLastNameTxt().setText("");
+        this.getPasswordTxt().setText("");
+        this.getTimestampTxt().setText(this.getSdf().format(Calendar.getInstance().getTime()));
+        this.getUserTypeCbx().select(-1);
+        this.getUserNameTxt().setText("");
+        this.getActionBtn().setText("add");
+    }
+
+    private Logger getLog() {
+        if (this.log == null) {
+            this.log = Logger.getLogger((Class)NewPurchaseOrderComposite.class);
+            PropertyConfigurator.configure((String)"log4j.properties");
+        }
+        return this.log;
+    }
+
+    public MasterCenterComposite getParent() {
+        return this.parent;
+    }
+
+    public GridData getValuesGd() {
+        if (this.valuesGd == null) {
+            this.valuesGd = new GridData(768);
+            this.valuesGd.grabExcessHorizontalSpace = true;
+        }
+        return this.valuesGd;
+    }
+
+    public void loadValues() {
+        this.getUsersTbl().removeAll();
+        for (User user : UserRepo.findAll()) {
+            TableItem item = new TableItem(this.getUsersTbl(), 0);
+            if (!user.isEnabled()) {
+                item.setBackground(new Color((Device)this.getDisplay(), 255, 224, 237));
+            }
+            String[] texts = new String[]{String.valueOf(user.getId()), String.valueOf(user.getFirstName()) + " " + user.getLastName()};
+            item.setData((Object)user);
+            item.setText(texts);
+        }
+        this.getTimestampTxt().setText(this.getSdf().format(Calendar.getInstance().getTime()));
+    }
+
+    public SimpleDateFormat getSdf() {
+        if (this.sdf == null) {
+            this.sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        }
+        return this.sdf;
+    }
+
 }
+

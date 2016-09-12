@@ -1,444 +1,365 @@
+/*
+ * Decompiled with CFR 0_115.
+ * 
+ * Could not load the following classes:
+ *  com.uslc.po.jpa.entity.Color
+ *  com.uslc.po.jpa.logic.ColorRepo
+ *  com.uslc.po.jpa.util.Constants
+ *  com.uslc.po.jpa.util.UslcJpa
+ *  org.apache.log4j.Logger
+ *  org.apache.log4j.PropertyConfigurator
+ *  org.eclipse.swt.events.MouseAdapter
+ *  org.eclipse.swt.events.MouseEvent
+ *  org.eclipse.swt.events.MouseListener
+ *  org.eclipse.swt.events.SelectionAdapter
+ *  org.eclipse.swt.events.SelectionEvent
+ *  org.eclipse.swt.events.SelectionListener
+ *  org.eclipse.swt.layout.FormData
+ *  org.eclipse.swt.layout.GridData
+ *  org.eclipse.swt.layout.GridLayout
+ *  org.eclipse.swt.widgets.Button
+ *  org.eclipse.swt.widgets.Composite
+ *  org.eclipse.swt.widgets.Label
+ *  org.eclipse.swt.widgets.Layout
+ *  org.eclipse.swt.widgets.MessageBox
+ *  org.eclipse.swt.widgets.Shell
+ *  org.eclipse.swt.widgets.Table
+ *  org.eclipse.swt.widgets.TableColumn
+ *  org.eclipse.swt.widgets.TableItem
+ *  org.eclipse.swt.widgets.Text
+ */
 package com.uslc.po.gui.master.catalog;
 
+import com.uslc.po.gui.master.MasterCenterComposite;
+import com.uslc.po.gui.master.POMaster;
+import com.uslc.po.gui.util.MyGridData;
+import com.uslc.po.jpa.entity.Color;
+import com.uslc.po.jpa.logic.ColorRepo;
+import com.uslc.po.jpa.util.Constants;
+import com.uslc.po.jpa.util.UslcJpa;
 import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
-import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Font;
-import org.eclipse.swt.graphics.FontData;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Layout;
 import org.eclipse.swt.widgets.MessageBox;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableColumn;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 
-import com.uslc.po.gui.master.MasterCenterComposite;
-import com.uslc.po.gui.master.interfaces.LiveDataAccessLifeCicle;
-import com.uslc.po.gui.master.interfaces.MasterCompositeInterface;
-import com.uslc.po.gui.util.MyGridData;
-import com.uslc.po.jpa.entity.Color;
-import com.uslc.po.jpa.util.Constants;
-import com.uslc.po.jpa.util.UslcJpa;
+public class ColorManagerComposite
+extends Composite {
+    private MasterCenterComposite parent = null;
+    private Label title = null;
+    private Label nameTitle = null;
+    private Label numberTitle = null;
+    private Text nameInput = null;
+    private Text numberInput = null;
+    private Table table = null;
+    private Label currentAction = null;
+    private Button action = null;
+    private Button cancel = null;
+    private boolean editing = false;
+    private Color currentColor = null;
+    private Logger log = null;
 
-public class ColorManagerComposite extends FormCenterMaster implements MasterCompositeInterface {
-	private Label title = null;
-	private Label nameTitle = null;
-	private Label numberTitle = null;
-	private Text nameInput = null;
-	private Text numberInput = null;
-	private Table table = null;
-	private Label currentAction = null;
-	private Button action = null;
-	private Button cancel = null;
-	private boolean editing = false;
-	private Color currentColor = null;
-	
-	private Logger log = null;
-	
-	public LiveDataAccessLifeCicle ldalc = null;
-	
-	public ColorManagerComposite( MasterCenterComposite composite ) {
-		super( composite, SWT.NONE );
-		getLog().info( ColorManagerComposite.class + " is being instantiated" );
-		initComposite();
-	}
-	public void initComposite(){
-		FormData data = new FormData( 400, 250 );
-		setLayoutData( data );
-		
-		setLayout( new GridLayout( 3, false ) );
-		
-		getTitle();
-		getTable();
-		getCurrentAction();
-		getNameTitle();
-		getNameInput();
-		getNumberTitle();
-		getNumberInput();
-		getAction();
-		getCancel();
-		
-		getLiveDataAccessLifeCicle();
-	}
-	public Label getTitle() {
-		if( title == null ){
-			title = new Label( this, SWT.NONE );
-			title.setText( "Colors" );
-			title.setAlignment(SWT.LEFT);
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data.horizontalSpan=3;
-			title.setLayoutData(data);
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(data);
-		}
-		return title;
-	}
-	public Table getTable(){
-		if( table == null ){
-			table = new Table(this, SWT.SINGLE | SWT.FULL_SELECTION );
-			Font f = table.getFont();
-			FontData[] fds = f.getFontData();
-			for (int i = 0; i < fds.length; i++) {
-				fds[i].setHeight(8);
-			}
-			table.setFont( new Font(getDisplay(), fds));
-			table.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "color ~> color list", 
-							"list all existing colors in the database", 
-							new String[]{ "double click for modifying the color" }) );
-				}
-			});
-			table.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			TableColumn id = new TableColumn(table, SWT.CENTER);
-			id.setText("id");
-			TableColumn name = new TableColumn(table, SWT.LEFT);
-			name.setText("name");
-			TableColumn number = new TableColumn(table, SWT.CENTER);
-			number.setText("number");
-			
-			id.setWidth(30);
-			name.setWidth(70);
-			number.setWidth(70);
-			table.setHeaderVisible(true);
-			
-			GridData data = new GridData();
-			data.grabExcessVerticalSpace=true;
-			data.verticalAlignment = GridData.FILL;
-			//data.verticalAlignment = GridData.VERTICAL_ALIGN_BEGINNING;
-			
-			data.verticalSpan = 5;
-			table.setLayoutData(data);
-			
-			table.addMouseListener(new MouseAdapter() {
-				@Override
-				public void mouseDoubleClick(MouseEvent arg0) {
-					getLog().info( "double clicked" );
-					setEditMode();
-				}
-			});
-			table.addSelectionListener(new SelectionAdapter() {
-				
-				@Override
-				public void widgetSelected(SelectionEvent arg0) {
-					//getLog().info( "widgetSelected" );
-					TableItem[] selection = table.getSelection();
-					Color color = null;
-					if( selection!=null ){
-						for (TableItem item : selection) {
-							color = (Color)item.getData();
-						}
-						getLog().info( color.getId() + "["+color.getName()+" - "+color.getNumber()+"]" );
-					}
-				}
-			});
-		}
-		return table;
-	}
-	public Label getCurrentAction() {
-		if( currentAction == null ){
-			currentAction = new Label(this, SWT.NONE);
-			currentAction.setText( "Action: Add a new color" );
-			currentAction.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-			
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(MyGridData.getDgHorizontalDoubleSpan());
-		}
-		return currentAction;
-	}
-	public Label getNameTitle() {
-		if( nameTitle == null ){
-			nameTitle = new Label(this, SWT.NONE);
-			nameTitle.setAlignment( SWT.RIGHT );
-			nameTitle.setText("Name:");
-			GridData gd = new GridData( GridData.FILL_HORIZONTAL );
-			gd.grabExcessHorizontalSpace=true;
-			nameTitle.setLayoutData(gd);
-		}
-		return nameTitle;
-	}
-	public Label getNumberTitle() {
-		if( numberTitle == null ){
-			numberTitle = new Label(this, SWT.NONE);
-			numberTitle.setText("Number:");
-			numberTitle.setAlignment( SWT.RIGHT );
-			GridData gd = new GridData( GridData.FILL_HORIZONTAL );
-			gd.grabExcessHorizontalSpace=true;
-			numberTitle.setLayoutData(gd);
-		}
-		return numberTitle;
-	}
-	public Text getNameInput() {
-		if( nameInput == null ){
-			nameInput = new Text(this, SWT.BORDER);
-			nameInput.setLayoutData( new GridData(GridData.FILL_HORIZONTAL) );
-			
-			nameInput.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "colo ~> color name field", 
-							"here you can set the color name for a new color or change the name of an existing color", 
-							new String[]{ "type in the color name i.e.: [BLACK]" }) );
-				}
-			});
-			nameInput.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-		}
-		return nameInput;
-	}
-	public Text getNumberInput() {
-		if( numberInput == null ){
-			numberInput = new Text(this, SWT.BORDER);
-			numberInput.setLayoutData( new GridData(GridData.FILL_HORIZONTAL) );
-			
-			numberInput.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "color ~> color number field", 
-							"here you can set the color code for a new color or change the code for an existing color", 
-							new String[]{ "type in the color code i.e.: [100]" }) );
-				}
-			});
-			numberInput.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-		}
-		return numberInput;
-	}
-	public void setEditMode(){
-		TableItem[] selection = getTable().getSelection();
-		Color color = null;
-		if( selection!=null ){
-			for (TableItem item : selection) {
-				color = (Color)item.getData();
-			}
-		}
-		if( color!=null ){
-			getLog().info( color.getId() + "["+color.getName()+" - "+color.getNumber()+"]" );
-			currentColor = color;
-			editing = true;
-			getNameInput().setText( color.getName() );
-			getNumberInput().setText( color.getNumber() );
-			getAction().setText( "update" );
-			getCurrentAction().setText( "Color["+color.getId()+"] - UPDATE" );
-			getCurrentAction().setAlignment(SWT.RIGHT);
-		}else{
-			editing = false;
-			currentColor = null;
-		}
-	}
-	public Button getAction() {
-		if( action == null ){
-			action = new Button(this, SWT.PUSH | SWT.CENTER);
-			action.setText( "add" );
-			GridData gd = new GridData();
-			gd.horizontalAlignment = SWT.CENTER;
-			gd.widthHint = 70;
-			action.setLayoutData( gd );
-			
-			action.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "colo ~> add/update button", 
-							"hit to add or update a color to the database", 
-							null) );
-				}
-			});
-			action.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			
-			action.addSelectionListener( new SelectionAdapter() {
-				@Override
-				public void widgetSelected( SelectionEvent e ){
-					try {
-						performAction();
-					} catch (Exception e1) {
-						getLog().error( "error", e1);
-					}
-				}
-			});
-		}
-		return action;
-	}
-	
-	public Button getCancel() {
-		if( cancel == null ){
-			cancel = new Button(this, SWT.PUSH);
-			cancel.setText("cancel");
-			GridData gd = new GridData();
-			gd.horizontalAlignment = SWT.CENTER;
-			gd.widthHint = 70;
-			cancel.setLayoutData( gd );
-			cancel.addSelectionListener( new SelectionAdapter() {
-				@Override
-				public void widgetSelected( SelectionEvent e ){
-					if( !editing ){
-						hide();
-					}else{
-						getLiveDataAccessLifeCicle().clean();
-					}
-				}
-			});
-			
-			cancel.addListener( SWT.MouseHover, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					setInfoText( new InfoForm( "color ~> cancel button", 
-							"hit for cancelling the current action or hiding the color catalog form", 
-							null) );
-				}
-			});
-			cancel.addListener( SWT.MouseExit, new Listener() {
-				
-				@Override
-				public void handleEvent(Event arg0) {
-					cleanInfoText();
-				}
-			});
-			GridData data = new GridData(SWT.FILL, SWT.FILL, true, false);
-			data.horizontalSpan = 3;
-			Label horizontalLine = new Label(this, SWT.SEPARATOR | SWT.HORIZONTAL );
-			horizontalLine.setLayoutData(data);
-		}
-		return cancel;
-	}
-	
-	private void performAction() throws Exception {
-		Color color = null;
-		String name = getNameInput().getText();
-		String number = getNumberInput().getText();
-		String successMsg = "";
-		String errorMsg = "";
-		if( editing ){
-			color = currentColor;
-			successMsg = "Color updated correctly.";
-			errorMsg = "There was a problem while updating the color.";
-			
-			getParent().getMaster().setLastAction( "color edited", this);
-		}else{
-			color = new Color();
-			successMsg = "Color added correctly.";
-			errorMsg = "There was a problem while adding the color.";
-			getParent().getMaster().setLastAction( "color added", this);
-		}
-		
-		UslcJpa jpa = new UslcJpa();
-		color.setName(name);
-		color.setNumber(number);
-		int style = SWT.ICON_INFORMATION;
-		MessageBox diag = new MessageBox(this.getShell(), style);
-		diag.setText( Constants.MESSAGE_BOX_DIAG_TITLE.toString() );
-		if(jpa.persist(color)){
-			diag.setMessage( successMsg );
-			getLiveDataAccessLifeCicle().clean();
-			getLiveDataAccessLifeCicle().displayValues();
-		} else {
-			style = SWT.ICON_ERROR;
-			diag.setMessage(errorMsg);
-		}
-		diag.open();
-	}
-	private Logger getLog(){
-		if( log == null ){
-			log = Logger.getLogger(ColorManagerComposite.class);
-			PropertyConfigurator.configure( "log4j.properties" );
-		}
-		return log;
-	}
-	@Override
-	public InfoForm getInfoForm() {
-		String title = "color catalog manager";
-		String desc = "you are able to add new colors to the database "
-				+ "also modify existing colors in the database.";
-		String[] features = { "list existing colors in system", "add new colors", "delete existing colors" };
-		return new InfoForm( title, desc, features );
-	}
+    public ColorManagerComposite(MasterCenterComposite composite) {
+        super((Composite)composite.getMaster().getHiddenShell(), 0);
+        this.parent = composite;
+        this.initComposite();
+    }
 
-	public LiveDataAccessLifeCicle getLiveDataAccessLifeCicle() {
-		if( ldalc == null ) {
-			ldalc = new ColorManagerCompositeLogic();
-		}
-		return ldalc;
-	}
-	
-	public class ColorManagerCompositeLogic implements LiveDataAccessLifeCicle {
-		public ColorManagerCompositeLogic() {
-			displayValues();
-		}
-		
-		@Override
-		public void displayValues() {
-			List<Color> colors = getUslcJpaManager().getColors();
-			//List<Color> colors = ColorRepo.findAll();
-			getTable().removeAll();
-			for (Color color : colors) {
-				TableItem item = new TableItem( getTable(), SWT.NONE);
-				String[] texts = { String.valueOf( color.getId() ), color.getName(), color.getNumber() };
-				item.setData( color );
-				item.setText(texts);
-			}
-			getTitle().setText( "colors ("+colors.size()+")" );
-		}
+    public void initComposite() {
+        FormData data = new FormData(400, 250);
+        this.setLayoutData((Object)data);
+        this.setLayout((Layout)new GridLayout(3, false));
+        this.getTitle();
+        this.getTable();
+        this.getCurrentAction();
+        this.getNameTitle();
+        this.getNameInput();
+        this.getNumberTitle();
+        this.getNumberInput();
+        this.getAction();
+        this.getCancel();
+    }
 
-		@Override
-		public void clean() {
-			editing = false;
-			getNameInput().setText("");
-			getNumberInput().setText("");
-			getAction().setText("add");
-			getCurrentAction().setText( "Action: Add a new color" );
-			getCurrentAction().setAlignment(SWT.LEFT);
-		}
+    public Label getTitle() {
+        if (this.title == null) {
+            this.title = new Label((Composite)this, 0);
+            this.title.setText("Colors");
+            this.title.setAlignment(16384);
+            GridData data = new GridData(4, 4, true, false);
+            data.horizontalSpan = 3;
+            this.title.setLayoutData((Object)data);
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)data);
+        }
+        return this.title;
+    }
 
-		@Override
-		public void refreshFormData() {
-			//getLog().info( "refreshing..." );
-			clean();
-			displayValues();
-			
-			layout();
-		}
-		
-	}
+    public Table getTable() {
+        if (this.table == null) {
+            this.table = new Table((Composite)this, 4);
+            TableColumn id = new TableColumn(this.table, 16777216);
+            id.setText("id");
+            TableColumn name = new TableColumn(this.table, 16777216);
+            name.setText("name");
+            TableColumn number = new TableColumn(this.table, 16777216);
+            number.setText("number");
+            id.setWidth(30);
+            name.setWidth(70);
+            number.setWidth(70);
+            this.table.setHeaderVisible(true);
+            GridData data = new GridData();
+            data.grabExcessVerticalSpace = true;
+            data.verticalAlignment = 2;
+            data.verticalSpan = 5;
+            this.table.setLayoutData((Object)data);
+            this.table.addMouseListener((MouseListener)new MouseAdapter(){
+
+                public void mouseDoubleClick(MouseEvent arg0) {
+                    ColorManagerComposite.this.getLog().info((Object)"double clicked");
+                    ColorManagerComposite.this.setEditMode();
+                }
+            });
+            this.table.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent arg0) {
+                    TableItem[] selection = ColorManagerComposite.this.table.getSelection();
+                    Color color = null;
+                    if (selection != null) {
+                        TableItem[] arrtableItem = selection;
+                        int n = arrtableItem.length;
+                        int n2 = 0;
+                        while (n2 < n) {
+                            TableItem item = arrtableItem[n2];
+                            color = (Color)item.getData();
+                            ++n2;
+                        }
+                        ColorManagerComposite.this.getLog().info((Object)(String.valueOf(color.getId()) + "[" + color.getName() + " - " + color.getNumber() + "]"));
+                    }
+                }
+            });
+            this.loadColors();
+        }
+        return this.table;
+    }
+
+    public Label getCurrentAction() {
+        if (this.currentAction == null) {
+            this.currentAction = new Label((Composite)this, 0);
+            this.currentAction.setText("Action: Add a new color");
+            this.currentAction.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)MyGridData.getDgHorizontalDoubleSpan());
+        }
+        return this.currentAction;
+    }
+
+    public Label getNameTitle() {
+        if (this.nameTitle == null) {
+            this.nameTitle = new Label((Composite)this, 0);
+            this.nameTitle.setAlignment(131072);
+            this.nameTitle.setText("Name:");
+            GridData gd = new GridData(768);
+            gd.grabExcessHorizontalSpace = true;
+            this.nameTitle.setLayoutData((Object)gd);
+        }
+        return this.nameTitle;
+    }
+
+    public Label getNumberTitle() {
+        if (this.numberTitle == null) {
+            this.numberTitle = new Label((Composite)this, 0);
+            this.numberTitle.setText("Number:");
+            this.numberTitle.setAlignment(131072);
+            GridData gd = new GridData(768);
+            gd.grabExcessHorizontalSpace = true;
+            this.numberTitle.setLayoutData((Object)gd);
+        }
+        return this.numberTitle;
+    }
+
+    public Text getNameInput() {
+        if (this.nameInput == null) {
+            this.nameInput = new Text((Composite)this, 2048);
+            this.nameInput.setLayoutData((Object)new GridData(768));
+        }
+        return this.nameInput;
+    }
+
+    public Text getNumberInput() {
+        if (this.numberInput == null) {
+            this.numberInput = new Text((Composite)this, 2048);
+            this.numberInput.setLayoutData((Object)new GridData(768));
+        }
+        return this.numberInput;
+    }
+
+    public MasterCenterComposite getParentComposite() {
+        return this.parent;
+    }
+
+    public MasterCenterComposite getParent() {
+        return this.parent;
+    }
+
+    public void setEditMode() {
+        TableItem[] selection = this.getTable().getSelection();
+        Color color = null;
+        if (selection != null) {
+            TableItem[] arrtableItem = selection;
+            int n = arrtableItem.length;
+            int n2 = 0;
+            while (n2 < n) {
+                TableItem item = arrtableItem[n2];
+                color = (Color)item.getData();
+                ++n2;
+            }
+        }
+        if (color != null) {
+            this.getLog().info((Object)(String.valueOf(color.getId()) + "[" + color.getName() + " - " + color.getNumber() + "]"));
+            this.currentColor = color;
+            this.editing = true;
+            this.getNameInput().setText(color.getName());
+            this.getNumberInput().setText(color.getNumber());
+            this.getAction().setText("update");
+            this.getCurrentAction().setText("Color[" + color.getId() + "] - UPDATE");
+            this.getCurrentAction().setAlignment(131072);
+        } else {
+            this.editing = false;
+            this.currentColor = null;
+        }
+    }
+
+    public Button getAction() {
+        if (this.action == null) {
+            this.action = new Button((Composite)this, 16777224);
+            this.action.setText("add");
+            GridData gd = new GridData();
+            gd.horizontalAlignment = 16777216;
+            gd.widthHint = 70;
+            this.action.setLayoutData((Object)gd);
+            this.action.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    try {
+                        ColorManagerComposite.this.performAction();
+                    }
+                    catch (Exception e1) {
+                        ColorManagerComposite.this.getLog().error((Object)"error", (Throwable)e1);
+                    }
+                }
+            });
+        }
+        return this.action;
+    }
+
+    public Button getCancel() {
+        if (this.cancel == null) {
+            this.cancel = new Button((Composite)this, 8);
+            this.cancel.setText("cancel");
+            GridData gd = new GridData();
+            gd.horizontalAlignment = 16777216;
+            gd.widthHint = 70;
+            this.cancel.setLayoutData((Object)gd);
+            this.cancel.addSelectionListener((SelectionListener)new SelectionAdapter(){
+
+                public void widgetSelected(SelectionEvent e) {
+                    if (!ColorManagerComposite.this.editing) {
+                        ColorManagerComposite.this.hide();
+                    } else {
+                        ColorManagerComposite.this.clean();
+                    }
+                }
+            });
+            GridData data = new GridData(4, 4, true, false);
+            data.horizontalSpan = 3;
+            Label horizontalLine = new Label((Composite)this, 258);
+            horizontalLine.setLayoutData((Object)data);
+        }
+        return this.cancel;
+    }
+
+    public void hide() {
+        this.clean();
+        this.setParent((Composite)this.getParent().getMaster().getHiddenShell());
+        this.setVisible(false);
+    }
+
+    private void loadColors() {
+        List colors = ColorRepo.findAll();
+        this.getTable().removeAll();
+        for (Color color : colors) {
+            TableItem item = new TableItem(this.getTable(), 0);
+            String[] texts = new String[]{String.valueOf(color.getId()), color.getName(), color.getNumber()};
+            item.setData((Object)color);
+            item.setText(texts);
+        }
+    }
+
+    private void clean() {
+        this.editing = false;
+        this.getNameInput().setText("");
+        this.getNumberInput().setText("");
+        this.getAction().setText("add");
+        this.getCurrentAction().setText("Action: Add a new color");
+        this.getCurrentAction().setAlignment(16384);
+    }
+
+    private void performAction() throws Exception {
+        Color color = null;
+        String name = this.getNameInput().getText();
+        String number = this.getNumberInput().getText();
+        String successMsg = "";
+        String errorMsg = "";
+        if (this.editing) {
+            color = this.currentColor;
+            successMsg = "Color updated correctly.";
+            errorMsg = "There was a problem while updating the color.";
+        } else {
+            color = new Color();
+            successMsg = "Color added correctly.";
+            errorMsg = "There was a problem while adding the color.";
+        }
+        UslcJpa jpa = new UslcJpa();
+        color.setName(name);
+        color.setNumber(number);
+        int style = 2;
+        MessageBox diag = new MessageBox(this.getShell(), style);
+        diag.setText(Constants.MESSAGE_BOX_DIAG_TITLE.toString());
+        if (jpa.persist((Object)color)) {
+            diag.setMessage(successMsg);
+            this.clean();
+            this.loadColors();
+        } else {
+            style = 1;
+            diag.setMessage(errorMsg);
+        }
+        diag.open();
+    }
+
+    private Logger getLog() {
+        if (this.log == null) {
+            this.log = Logger.getLogger((Class)ColorManagerComposite.class);
+            PropertyConfigurator.configure((String)"log4j.properties");
+        }
+        return this.log;
+    }
+
 }
+
