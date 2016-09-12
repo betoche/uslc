@@ -1,8 +1,0 @@
-package com.uslc.po.gui.master.interfaces;
-
-import com.uslc.po.gui.master.POMaster;
-
-public interface MasterCompositeInterface {
-	public POMaster getMaster();
-	public void setInfoText( String text );
-}
